@@ -55,7 +55,7 @@ const testimonios = [
     mensaje:
       "Mis hijos y yo escuchamos La Nube mientras desayunamos. Es parte de nuestras mañanas.",
   },
-];
+] as const;
 
 
 export default function Testimonios() {
