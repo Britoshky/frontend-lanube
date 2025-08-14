@@ -50,7 +50,7 @@ export default function Hero() {
           </Button>
         </div>
 
-        <audio ref={audioRef} src="https://stream.chanquinafm.cl/radiolanube" preload="none" />
+    <audio ref={audioRef} src="https://stream.cloudmusic.cl/listen/radio_la_nube/radio.mp3" preload="none" />
       </div>
     </section>
   );
