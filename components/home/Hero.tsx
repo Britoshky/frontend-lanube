@@ -8,8 +8,12 @@ const STREAM_URL = "https://stream.cloudmusic.cl/listen/radio_la_nube/radio.mp3"
 const BASE_RETRY_DELAY_MS = 1500;
 const MAX_RETRY_DELAY_MS = 20000;
 
+type PlayerStatus = "idle" | "connecting" | "playing" | "reconnecting";
+
 export default function Hero() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playerStatus, setPlayerStatus] = useState<PlayerStatus>("idle");
+  const [retryCount, setRetryCount] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
@@ -56,10 +60,12 @@ export default function Hero() {
     if (typeof navigator !== "undefined" && !navigator.onLine) return;
 
     clearRetryTimer();
+    setPlayerStatus("reconnecting");
     const attempt = retryAttemptRef.current;
     const backoff = Math.min(BASE_RETRY_DELAY_MS * 2 ** attempt, MAX_RETRY_DELAY_MS);
     const jitter = Math.floor(Math.random() * 350);
     retryAttemptRef.current += 1;
+    setRetryCount(retryAttemptRef.current);
 
     retryTimerRef.current = setTimeout(() => {
       void forceReconnect();
@@ -75,12 +81,16 @@ export default function Hero() {
       isManualPauseRef.current = true;
       clearRetryTimer();
       retryAttemptRef.current = 0;
+      setRetryCount(0);
+      setPlayerStatus("idle");
       audio.pause();
       setIsPlaying(false);
     } else {
       wantsToPlayRef.current = true;
       isManualPauseRef.current = false;
       retryAttemptRef.current = 0;
+      setRetryCount(0);
+      setPlayerStatus("connecting");
       void playWithRecovery();
     }
   };
@@ -91,7 +101,9 @@ export default function Hero() {
 
     const onPlaying = () => {
       setIsPlaying(true);
+      setPlayerStatus("playing");
       retryAttemptRef.current = 0;
+      setRetryCount(0);
       clearRetryTimer();
     };
 
@@ -99,6 +111,7 @@ export default function Hero() {
       setIsPlaying(false);
       if (isManualPauseRef.current) {
         isManualPauseRef.current = false;
+        setPlayerStatus("idle");
         return;
       }
       if (isRefreshingSourceRef.current) {
@@ -118,6 +131,8 @@ export default function Hero() {
     const onOnline = () => {
       if (wantsToPlayRef.current) {
         retryAttemptRef.current = 0;
+        setRetryCount(0);
+        setPlayerStatus("connecting");
         void forceReconnect();
       }
     };
@@ -128,6 +143,7 @@ export default function Hero() {
         wantsToPlayRef.current &&
         audio.paused
       ) {
+        setPlayerStatus("connecting");
         void forceReconnect();
       }
     };
@@ -185,7 +201,14 @@ export default function Hero() {
           </Button>
         </div>
 
-    <audio ref={audioRef} src={STREAM_URL} preload="none" />
+        <p className="text-sm md:text-base text-white/90">
+          {playerStatus === "playing" && "En vivo"}
+          {playerStatus === "connecting" && "Conectando..."}
+          {playerStatus === "reconnecting" && `Reintentando conexión (${retryCount})...`}
+          {playerStatus === "idle" && "Presiona play para escuchar en vivo"}
+        </p>
+
+        <audio ref={audioRef} src={STREAM_URL} preload="none" />
       </div>
     </section>
   );
