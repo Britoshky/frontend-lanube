@@ -10,8 +10,6 @@ const links = [
   { label: "Inicio", href: "/" },
   { label: "Quiénes Somos", href: "/quienes-somos" },
   { label: "Contacto", href: "/contacto" },
-  { label: "Tarifas Servel", href: "https://tarifas.servel.cl/visualizar/80c385b7ec23ba5866d8d5ff1d1a8dbf4b1765c9", external: true },
-  { label: "Cotizar Servel", href: "/cotizar-servel" },
 ];
 
 export default function Navbar() {
