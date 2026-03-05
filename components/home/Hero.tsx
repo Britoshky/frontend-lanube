@@ -13,7 +13,6 @@ type PlayerStatus = "idle" | "connecting" | "playing" | "reconnecting";
 export default function Hero() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>("idle");
-  const [retryCount, setRetryCount] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
@@ -66,7 +65,6 @@ export default function Hero() {
     const backoff = Math.min(BASE_RETRY_DELAY_MS * 2 ** attempt, MAX_RETRY_DELAY_MS);
     const jitter = Math.floor(Math.random() * 350);
     retryAttemptRef.current += 1;
-    setRetryCount(retryAttemptRef.current);
 
     retryTimerRef.current = setTimeout(() => {
       void forceReconnect();
@@ -82,7 +80,6 @@ export default function Hero() {
       isManualPauseRef.current = true;
       clearRetryTimer();
       retryAttemptRef.current = 0;
-      setRetryCount(0);
       setPlayerStatus("idle");
       audio.pause();
       setIsPlaying(false);
@@ -90,7 +87,6 @@ export default function Hero() {
       wantsToPlayRef.current = true;
       isManualPauseRef.current = false;
       retryAttemptRef.current = 0;
-      setRetryCount(0);
       setPlayerStatus("connecting");
       void playWithRecovery();
     }
@@ -104,7 +100,6 @@ export default function Hero() {
       setIsPlaying(true);
       setPlayerStatus("playing");
       retryAttemptRef.current = 0;
-      setRetryCount(0);
       clearRetryTimer();
     };
 
@@ -132,7 +127,6 @@ export default function Hero() {
     const onOnline = () => {
       if (wantsToPlayRef.current) {
         retryAttemptRef.current = 0;
-        setRetryCount(0);
         setPlayerStatus("connecting");
         void forceReconnect();
       }
