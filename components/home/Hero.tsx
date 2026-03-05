@@ -208,13 +208,6 @@ export default function Hero() {
           </Button>
         </div>
 
-        <p className="text-sm md:text-base text-white/90">
-          {playerStatus === "playing" && "En vivo"}
-          {playerStatus === "connecting" && "Conectando..."}
-          {playerStatus === "reconnecting" && `Reintentando conexión (${retryCount})...`}
-          {playerStatus === "idle" && "Presiona play para escuchar en vivo"}
-        </p>
-
         <audio ref={audioRef} src={STREAM_URL} preload="none" />
       </div>
     </section>
