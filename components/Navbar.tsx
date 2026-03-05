@@ -6,7 +6,13 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const links = [
+type NavLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+const links: NavLink[] = [
   { label: "Inicio", href: "/" },
   { label: "Quiénes Somos", href: "/quienes-somos" },
   { label: "Contacto", href: "/contacto" },
