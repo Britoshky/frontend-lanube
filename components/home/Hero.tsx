@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { LoaderCircle, Pause, Phone, Play } from "lucide-react";
 
-const STREAM_URL = "https://stream.cloudmusic.cl/listen/radio_la_nube/radio.mp3";
+const STREAM_URL = "https://sonic.nnw.cl/8034/stream";
 const BASE_RETRY_DELAY_MS = 1500;
 const MAX_RETRY_DELAY_MS = 20000;
 
