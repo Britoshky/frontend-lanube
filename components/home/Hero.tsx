@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, Phone } from "lucide-react";
+import { LoaderCircle, Pause, Phone, Play } from "lucide-react";
 
 const STREAM_URL = "https://stream.cloudmusic.cl/listen/radio_la_nube/radio.mp3";
 const BASE_RETRY_DELAY_MS = 1500;
@@ -20,6 +20,7 @@ export default function Hero() {
   const wantsToPlayRef = useRef(false);
   const isManualPauseRef = useRef(false);
   const isRefreshingSourceRef = useRef(false);
+  const isLoading = playerStatus === "connecting" || playerStatus === "reconnecting";
 
   const clearRetryTimer = () => {
     if (retryTimerRef.current) {
@@ -187,8 +188,14 @@ export default function Hero() {
             variant="ghost"
             size="lg"
           >
-            {isPlaying ? <Pause className="mr-2" /> : <Play className="mr-2" />}
-            {isPlaying ? "Pausar" : "Escúchanos en vivo"}
+            {isPlaying ? (
+              <Pause className="mr-2" />
+            ) : isLoading ? (
+              <LoaderCircle className="mr-2 animate-spin" />
+            ) : (
+              <Play className="mr-2" />
+            )}
+            {isPlaying ? "Pausar" : isLoading ? "Cargando..." : "Escúchanos en vivo"}
           </Button>
 
           <Button
