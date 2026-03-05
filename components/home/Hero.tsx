@@ -15,6 +15,7 @@ export default function Hero() {
   const retryAttemptRef = useRef(0);
   const wantsToPlayRef = useRef(false);
   const isManualPauseRef = useRef(false);
+  const isRefreshingSourceRef = useRef(false);
 
   const clearRetryTimer = () => {
     if (retryTimerRef.current) {
@@ -34,14 +35,20 @@ export default function Hero() {
     }
   };
 
-  const forceReconnect = () => {
+  const forceReconnect = async () => {
     const audio = audioRef.current;
     if (!audio || !wantsToPlayRef.current) return;
 
+    isRefreshingSourceRef.current = true;
     const url = `${STREAM_URL}${STREAM_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
     audio.src = url;
     audio.load();
-    void playWithRecovery();
+
+    try {
+      await playWithRecovery();
+    } finally {
+      isRefreshingSourceRef.current = false;
+    }
   };
 
   const scheduleReconnect = () => {
@@ -55,7 +62,7 @@ export default function Hero() {
     retryAttemptRef.current += 1;
 
     retryTimerRef.current = setTimeout(() => {
-      forceReconnect();
+      void forceReconnect();
     }, backoff + jitter);
   };
 
@@ -74,7 +81,7 @@ export default function Hero() {
       wantsToPlayRef.current = true;
       isManualPauseRef.current = false;
       retryAttemptRef.current = 0;
-      forceReconnect();
+      void playWithRecovery();
     }
   };
 
@@ -94,6 +101,9 @@ export default function Hero() {
         isManualPauseRef.current = false;
         return;
       }
+      if (isRefreshingSourceRef.current) {
+        return;
+      }
       if (wantsToPlayRef.current) {
         scheduleReconnect();
       }
@@ -108,7 +118,7 @@ export default function Hero() {
     const onOnline = () => {
       if (wantsToPlayRef.current) {
         retryAttemptRef.current = 0;
-        forceReconnect();
+        void forceReconnect();
       }
     };
 
@@ -118,7 +128,7 @@ export default function Hero() {
         wantsToPlayRef.current &&
         audio.paused
       ) {
-        forceReconnect();
+        void forceReconnect();
       }
     };
 
