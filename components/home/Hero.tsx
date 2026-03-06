@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Pause, Phone, Play } from "lucide-react";
 
 const STREAM_URL = "https://sonic.nnw.cl/8034/stream";
@@ -19,27 +19,29 @@ export default function Hero() {
   const wantsToPlayRef = useRef(false);
   const isManualPauseRef = useRef(false);
   const isRefreshingSourceRef = useRef(false);
+  const scheduleReconnectRef = useRef<() => void>(() => {});
+  const forceReconnectRef = useRef<() => Promise<void>>(async () => {});
   const isLoading = playerStatus === "connecting" || playerStatus === "reconnecting";
 
-  const clearRetryTimer = () => {
+  const clearRetryTimer = useCallback(() => {
     if (retryTimerRef.current) {
       clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
     }
-  };
+  }, []);
 
-  const playWithRecovery = async () => {
+  const playWithRecovery = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio || !wantsToPlayRef.current) return;
 
     try {
       await audio.play();
     } catch {
-      scheduleReconnect();
+      scheduleReconnectRef.current();
     }
-  };
+  }, []);
 
-  const forceReconnect = async () => {
+  const forceReconnect = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio || !wantsToPlayRef.current) return;
 
@@ -53,9 +55,9 @@ export default function Hero() {
     } finally {
       isRefreshingSourceRef.current = false;
     }
-  };
+  }, [playWithRecovery]);
 
-  const scheduleReconnect = () => {
+  const scheduleReconnect = useCallback(() => {
     if (!wantsToPlayRef.current) return;
     if (typeof navigator !== "undefined" && !navigator.onLine) return;
 
@@ -67,9 +69,12 @@ export default function Hero() {
     retryAttemptRef.current += 1;
 
     retryTimerRef.current = setTimeout(() => {
-      void forceReconnect();
+      void forceReconnectRef.current();
     }, backoff + jitter);
-  };
+  }, [clearRetryTimer]);
+
+  scheduleReconnectRef.current = scheduleReconnect;
+  forceReconnectRef.current = forceReconnect;
 
   const toggleAudio = () => {
     const audio = audioRef.current;
@@ -163,7 +168,7 @@ export default function Hero() {
       window.removeEventListener("online", onOnline);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, []);
+  }, [clearRetryTimer, forceReconnect, scheduleReconnect]);
 
   return (
     <section className="w-full min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-6 text-center">

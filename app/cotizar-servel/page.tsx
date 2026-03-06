@@ -4,6 +4,38 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Cotizar Servel | Radio La Nube 99.5 FM",
   description: "Calcula el valor de tu aviso o entrevista para Servel en Radio La Nube.",
+  alternates: {
+    canonical: "https://lanubefm.cl/cotizar-servel",
+  },
+  keywords: [
+    "cotizar servel",
+    "radio la nube",
+    "publicidad radial",
+    "franja electoral",
+    "radio chanco",
+  ],
+  openGraph: {
+    title: "Cotizar Servel | Radio La Nube 99.5 FM",
+    description: "Cotiza tu aviso o entrevista para Servel en Radio La Nube 99.5 FM.",
+    url: "https://lanubefm.cl/cotizar-servel",
+    siteName: "Radio La Nube",
+    locale: "es_CL",
+    type: "website",
+    images: [
+      {
+        url: "/logo-fondo.png",
+        width: 1200,
+        height: 1065,
+        alt: "Radio La Nube 99.5 FM",
+      },
+    ],
+  },
+  twitter: {
+    title: "Cotizar Servel | Radio La Nube 99.5 FM",
+    description: "Cotiza tu publicidad para Servel en Radio La Nube.",
+    card: "summary_large_image",
+    images: ["/logo-fondo.png"],
+  },
 };
 
 export default function CotizarServelPage() {

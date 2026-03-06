@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Condiciones del Servicio | Radio La Nube 99.5 FM",
   description:
     "Lee las condiciones de uso de nuestros servicios digitales y de transmisión en Radio La Nube.",
+  alternates: {
+    canonical: "https://lanubefm.cl/condiciones-de-servicio",
+  },
   keywords: [
     "términos de servicio radio",
     "condiciones legales",
@@ -18,7 +21,7 @@ export const metadata: Metadata = {
     title: "Condiciones del Servicio | Radio La Nube 99.5 FM",
     description:
       "Accede a las condiciones legales que regulan el uso de nuestros contenidos y plataformas digitales.",
-    url: "https://lanubefm.cl/condiciones-del-servicio",
+    url: "https://lanubefm.cl/condiciones-de-servicio",
     siteName: "Radio La Nube",
     locale: "es_CL",
     type: "article",

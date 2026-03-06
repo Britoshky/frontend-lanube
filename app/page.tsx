@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "Radio La Nube 99.5 FM | Música y Cultura desde Chanco",
   description:
     "Escucha Radio La Nube 99.5 FM en vivo. Música, entrevistas y contenido juvenil desde Chanco, Región del Maule.",
+  alternates: {
+    canonical: "https://lanubefm.cl/",
+  },
   keywords: [
     "radio juvenil",
     "Radio La Nube",
@@ -30,12 +33,21 @@ export const metadata: Metadata = {
     siteName: "Radio La Nube",
     locale: "es_CL",
     type: "website",
+    images: [
+      {
+        url: "/logo-fondo.png",
+        width: 1200,
+        height: 1065,
+        alt: "Radio La Nube 99.5 FM",
+      },
+    ],
   },
   twitter: {
     title: "Radio La Nube 99.5 FM | Música y Cultura desde Chanco",
     description:
       "Conecta con la mejor radio juvenil del Maule. Radio La Nube 99.5 FM desde Chanco, Chile.",
     card: "summary_large_image",
+    images: ["/logo-fondo.png"],
   },
 };
 

@@ -4,23 +4,44 @@
 
   <url>
     <loc>https://lanubefm.cl/</loc>
-    <lastmod>2025-07-16</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
  
   <url>
     <loc>https://lanubefm.cl/quienes-somos</loc>
-    <lastmod>2025-07-10</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://lanubefm.cl/contacto</loc>
-    <lastmod>2025-07-10</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://lanubefm.cl/cotizar-servel</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://lanubefm.cl/condiciones-de-servicio</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://lanubefm.cl/politicas-de-seguridad</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
 
 </urlset>

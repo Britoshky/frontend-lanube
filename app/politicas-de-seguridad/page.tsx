@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Política de Seguridad | Radio La Nube 99.5 FM",
   description:
     "Consulta la política de seguridad y protección de datos personales de Radio La Nube 99.5 FM.",
+  alternates: {
+    canonical: "https://lanubefm.cl/politicas-de-seguridad",
+  },
   keywords: [
     "política de seguridad",
     "protección de datos",
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
     title: "Política de Seguridad | Radio La Nube 99.5 FM",
     description:
       "Tu privacidad es importante para nosotros. Revisa nuestras medidas de protección de datos y comunicación.",
-    url: "https://lanubefm.cl/politica-de-seguridad",
+    url: "https://lanubefm.cl/politicas-de-seguridad",
     siteName: "Radio La Nube",
     locale: "es_CL",
     type: "article",
