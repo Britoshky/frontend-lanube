@@ -240,21 +240,21 @@ export default function Hero() {
   }, [clearRetryTimer, forceReconnect, scheduleReconnect]);
 
   return (
-    <section className="w-full mt-20 min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-6 text-center">
-      <div className="w-full max-w-4xl space-y-8">
-        <h1 className="text-4xl md:text-5xl font-bold drop-shadow-md">
+    <section className="w-full mt-20 min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-4 sm:px-6 text-center">
+      <div className="w-full max-w-4xl space-y-5 sm:space-y-8">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-md">
           Radio La Nube <span className="text-yellow-300">99.5 FM</span>
         </h1>
-        <p className="text-xl md:text-2xl font-medium italic">
+        <p className="text-base sm:text-xl md:text-2xl font-medium italic">
           “Una nube de éxitos” desde Chanco, Región del Maule 🌤️
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
           <Button
             onClick={toggleAudio}
-            className="text-white bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md"
+            className="text-sm sm:text-base text-white bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md"
             variant="ghost"
-            size="lg"
+            size="default"
           >
             {isPlaying ? (
               <Pause className="mr-2" />
@@ -268,7 +268,8 @@ export default function Hero() {
 
           <Button
             variant="secondary"
-            className="bg-white text-sky-700 hover:bg-white/90 font-semibold"
+            className="text-sm sm:text-base bg-white text-sky-700 hover:bg-white/90 font-semibold"
+            size="default"
             onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
           >
             <Phone className="mr-2 w-5 h-5" />
@@ -276,16 +277,16 @@ export default function Hero() {
           </Button>
         </div>
 
-        <div className="mx-auto w-full max-w-2xl rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
+        <div className="mx-auto w-[min(92vw,220px)] sm:w-full sm:max-w-2xl rounded-xl sm:rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-[minmax(180px,220px)_1fr] items-stretch">
-            <div className="flex items-center justify-center bg-black/20 p-3 sm:p-4 min-h-[220px] sm:min-h-0">
+            <div className="flex items-center justify-center bg-black/20 p-2.5 sm:p-4 min-h-[160px] sm:min-h-0">
               <Image
                 src={nowPlaying.art}
                 alt={`Carátula de ${nowPlaying.title}`}
                 width={900}
                 height={900}
                 sizes="(max-width: 640px) 92vw, (max-width: 1024px) 220px, 240px"
-                className="h-full w-full max-h-[280px] object-contain"
+                className="h-full w-full max-h-[180px] sm:max-h-[280px] object-contain"
                 referrerPolicy="no-referrer"
                 onError={() => {
                   setNowPlaying((current) => ({
@@ -296,10 +297,10 @@ export default function Hero() {
               />
             </div>
 
-            <div className="p-5 sm:p-6 text-left space-y-3">
+            <div className="p-3.5 sm:p-6 text-left space-y-2 sm:space-y-3">
               <div className="flex items-center gap-2">
                 <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
+                  className={`inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold tracking-wide ${
                     nowPlaying.isOnline
                       ? "bg-emerald-400/20 text-emerald-100 border border-emerald-300/40"
                       : "bg-amber-300/20 text-amber-100 border border-amber-200/40"
@@ -314,17 +315,17 @@ export default function Hero() {
                 </span>
               </div>
 
-              <p className="text-sm uppercase tracking-[0.18em] text-white/70 font-medium">
+              <p className="text-[11px] sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.18em] text-white/70 font-medium">
                 Artista
               </p>
-              <h2 className="text-lg md:text-xl font-semibold leading-tight text-white break-words">
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-tight text-white break-words">
                 {nowPlaying.artist}
               </h2>
 
-              <p className="text-sm uppercase tracking-[0.18em] text-white/70 font-medium pt-1">
+              <p className="text-[11px] sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.18em] text-white/70 font-medium pt-0.5 sm:pt-1">
                 Canción
               </p>
-              <p className="text-xl md:text-2xl font-bold leading-tight text-white break-words">
+              <p className="text-lg sm:text-xl md:text-2xl font-bold leading-tight text-white break-words">
                 {nowPlaying.title}
               </p>
             </div>
