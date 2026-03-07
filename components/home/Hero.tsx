@@ -3,16 +3,37 @@
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Pause, Phone, Play } from "lucide-react";
+import Image from "next/image";
 
 const STREAM_URL = "https://a6.asurahosting.com:7360/radio.mp3";
+const NOW_PLAYING_URL = "https://a6.asurahosting.com/api/nowplaying/radio_la_nube";
 const BASE_RETRY_DELAY_MS = 1500;
 const MAX_RETRY_DELAY_MS = 20000;
+const NOW_PLAYING_POLL_MS = 15000;
 
 type PlayerStatus = "idle" | "connecting" | "playing" | "reconnecting";
+
+type NowPlayingInfo = {
+  isOnline: boolean;
+  title: string;
+  artist: string;
+  art: string;
+};
+
+const DEFAULT_COVER =
+  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=800&q=80";
+
+const INITIAL_NOW_PLAYING: NowPlayingInfo = {
+  isOnline: false,
+  title: "Cargando...",
+  artist: "Radio La Nube",
+  art: DEFAULT_COVER,
+};
 
 export default function Hero() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>("idle");
+  const [nowPlaying, setNowPlaying] = useState<NowPlayingInfo>(INITIAL_NOW_PLAYING);
   const audioRef = useRef<HTMLAudioElement>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
@@ -98,6 +119,55 @@ export default function Hero() {
   };
 
   useEffect(() => {
+    let isCancelled = false;
+
+    const loadNowPlaying = async () => {
+      try {
+        const response = await fetch(NOW_PLAYING_URL, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("No se pudo cargar metadata");
+        }
+
+        const data = await response.json();
+        const song = data?.now_playing?.song;
+
+        if (isCancelled) {
+          return;
+        }
+
+        setNowPlaying({
+          isOnline: Boolean(data?.is_online),
+          title: song?.title || "Sin información",
+          artist: song?.artist || "Radio La Nube",
+          art: song?.art || DEFAULT_COVER,
+        });
+      } catch {
+        if (isCancelled) {
+          return;
+        }
+
+        setNowPlaying((current) => ({
+          ...current,
+          isOnline: false,
+        }));
+      }
+    };
+
+    void loadNowPlaying();
+    const poll = setInterval(() => {
+      void loadNowPlaying();
+    }, NOW_PLAYING_POLL_MS);
+
+    return () => {
+      isCancelled = true;
+      clearInterval(poll);
+    };
+  }, []);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -172,7 +242,7 @@ export default function Hero() {
 
   return (
     <section className="w-full min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-6 text-center">
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-4xl space-y-8">
         <h1 className="text-4xl md:text-5xl font-bold drop-shadow-md">
           Radio La Nube <span className="text-yellow-300">99.5 FM</span>
         </h1>
@@ -205,6 +275,60 @@ export default function Hero() {
             <Phone className="mr-2 w-5 h-5" />
             Contáctanos
           </Button>
+        </div>
+
+        <div className="mx-auto w-full max-w-2xl rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] items-stretch">
+            <div className="relative h-40 sm:h-full bg-black/20">
+              <Image
+                src={nowPlaying.art}
+                alt={`Carátula de ${nowPlaying.title}`}
+                fill
+                sizes="(max-width: 640px) 100vw, 120px"
+                className="object-cover"
+                referrerPolicy="no-referrer"
+                onError={() => {
+                  setNowPlaying((current) => ({
+                    ...current,
+                    art: DEFAULT_COVER,
+                  }));
+                }}
+              />
+            </div>
+
+            <div className="p-5 sm:p-6 text-left space-y-3">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
+                    nowPlaying.isOnline
+                      ? "bg-emerald-400/20 text-emerald-100 border border-emerald-300/40"
+                      : "bg-amber-300/20 text-amber-100 border border-amber-200/40"
+                  }`}
+                >
+                  <span
+                    className={`mr-2 inline-block h-2 w-2 rounded-full ${
+                      nowPlaying.isOnline ? "bg-emerald-300" : "bg-amber-200"
+                    }`}
+                  />
+                  Sonando ahora
+                </span>
+              </div>
+
+              <p className="text-sm uppercase tracking-[0.18em] text-white/70 font-medium">
+                Artista
+              </p>
+              <h2 className="text-lg md:text-xl font-semibold leading-tight text-white break-words">
+                {nowPlaying.artist}
+              </h2>
+
+              <p className="text-sm uppercase tracking-[0.18em] text-white/70 font-medium pt-1">
+                Canción
+              </p>
+              <p className="text-xl md:text-2xl font-bold leading-tight text-white break-words">
+                {nowPlaying.title}
+              </p>
+            </div>
+          </div>
         </div>
 
         <audio ref={audioRef} src={STREAM_URL} preload="none" />
