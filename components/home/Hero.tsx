@@ -20,8 +20,7 @@ type NowPlayingInfo = {
   art: string;
 };
 
-const DEFAULT_COVER =
-  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=800&q=80";
+const DEFAULT_COVER = "/logo-fondo.webp";
 
 const INITIAL_NOW_PLAYING: NowPlayingInfo = {
   isOnline: false,
@@ -241,8 +240,8 @@ export default function Hero() {
   }, [clearRetryTimer, forceReconnect, scheduleReconnect]);
 
   return (
-    <section className="w-full min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-6 text-center">
-      <div className="max-w-4xl space-y-8">
+    <section className="w-full mt-20 min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-6 text-center">
+      <div className="w-full max-w-4xl space-y-8">
         <h1 className="text-4xl md:text-5xl font-bold drop-shadow-md">
           Radio La Nube <span className="text-yellow-300">99.5 FM</span>
         </h1>
@@ -278,14 +277,15 @@ export default function Hero() {
         </div>
 
         <div className="mx-auto w-full max-w-2xl rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] items-stretch">
-            <div className="relative h-40 sm:h-full bg-black/20">
+          <div className="grid grid-cols-1 sm:grid-cols-[minmax(180px,220px)_1fr] items-stretch">
+            <div className="flex items-center justify-center bg-black/20 p-3 sm:p-4 min-h-[220px] sm:min-h-0">
               <Image
                 src={nowPlaying.art}
                 alt={`Carátula de ${nowPlaying.title}`}
-                fill
-                sizes="(max-width: 640px) 100vw, 120px"
-                className="object-cover"
+                width={900}
+                height={900}
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 220px, 240px"
+                className="h-full w-full max-h-[280px] object-contain"
                 referrerPolicy="no-referrer"
                 onError={() => {
                   setNowPlaying((current) => ({
