@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle, Pause, Phone, Play } from "lucide-react";
+import { LoaderCircle, Pause, Play } from "lucide-react";
 import Image from "next/image";
 
 const STREAM_URL = "https://a6.asurahosting.com:7360/radio.mp3";
@@ -240,7 +240,7 @@ export default function Hero() {
   }, [clearRetryTimer, forceReconnect, scheduleReconnect]);
 
   return (
-    <section className="w-full mt-20 min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gradient-to-br from-sky-500 via-purple-500 to-pink-500 text-white px-4 sm:px-6 text-center">
+    <section className="w-full mt-20 min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gradient-to-br from-[#0d4f9e] via-[#1b6fcd] to-[#3aa8ff] text-white px-4 sm:px-6 text-center">
       <div className="w-full max-w-4xl space-y-5 sm:space-y-8">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-md">
           Radio La Nube <span className="text-yellow-300">99.5 FM</span>
@@ -249,35 +249,25 @@ export default function Hero() {
           “Una nube de éxitos” desde Chanco, Región del Maule 🌤️
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
+        <div className="mx-auto w-[min(94vw,320px)] sm:w-full sm:max-w-2xl space-y-3 sm:space-y-4">
           <Button
             onClick={toggleAudio}
-            className="text-sm sm:text-base text-white bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md"
+            className="w-full h-14 sm:h-12 rounded-full border border-white/45 bg-slate-900/35 px-4 text-sm sm:text-base font-semibold text-white backdrop-blur-md hover:bg-slate-900/50"
             variant="ghost"
             size="default"
+            aria-label={isPlaying ? "Pausar transmisión" : isLoading ? "Conectando" : "Escuchar en vivo"}
           >
             {isPlaying ? (
-              <Pause className="mr-2" />
+              <Pause className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             ) : isLoading ? (
-              <LoaderCircle className="mr-2 animate-spin" />
+              <LoaderCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
             ) : (
-              <Play className="mr-2" />
+              <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             )}
-            {isPlaying ? "Pausar" : isLoading ? "Cargando..." : "Escúchanos en vivo"}
+            {isPlaying ? "Pausar transmisión" : isLoading ? "Conectando..." : "Escúchanos en vivo"}
           </Button>
 
-          <Button
-            variant="secondary"
-            className="text-sm sm:text-base bg-white text-sky-700 hover:bg-white/90 font-semibold"
-            size="default"
-            onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
-          >
-            <Phone className="mr-2 w-5 h-5" />
-            Contáctanos
-          </Button>
-        </div>
-
-        <div className="mx-auto w-[min(92vw,220px)] sm:w-full sm:max-w-2xl rounded-xl sm:rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
+          <div className="rounded-xl sm:rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-[minmax(180px,220px)_1fr] items-stretch">
             <div className="flex items-center justify-center bg-black/20 p-2.5 sm:p-4 min-h-[160px] sm:min-h-0">
               <Image
@@ -298,7 +288,7 @@ export default function Hero() {
             </div>
 
             <div className="p-3.5 sm:p-6 text-left space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold tracking-wide ${
                     nowPlaying.isOnline
@@ -329,6 +319,7 @@ export default function Hero() {
                 {nowPlaying.title}
               </p>
             </div>
+          </div>
           </div>
         </div>
 
