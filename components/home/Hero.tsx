@@ -252,7 +252,7 @@ export default function Hero() {
         <div className="mx-auto w-[min(94vw,320px)] sm:w-full sm:max-w-2xl space-y-3 sm:space-y-4">
           <Button
             onClick={toggleAudio}
-            className="w-full h-14 sm:h-12 rounded-full border border-white/45 bg-slate-900/35 px-4 text-sm sm:text-base font-semibold text-white backdrop-blur-md hover:bg-slate-900/50"
+            className="w-full h-14 sm:h-12 rounded-full border border-white/45 bg-slate-900/35 px-4 text-sm sm:text-base font-semibold text-white backdrop-blur-md hover:bg-yellow-300 hover:text-sky-900"
             variant="ghost"
             size="default"
             aria-label={isPlaying ? "Pausar transmisión" : isLoading ? "Conectando" : "Escuchar en vivo"}
