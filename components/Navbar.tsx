@@ -25,7 +25,13 @@ export default function Navbar() {
     <header className="w-full shadow-md bg-white fixed top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Radio la Nube" width={40} height={40} className="h-10 w-auto" />
+          <Image
+            src="/logo.png"
+            alt="Radio la Nube"
+            width={40}
+            height={40}
+            className="w-10 h-auto"
+          />
           <div className="text-left">
             <h1 className="text-xl font-bold leading-none text-gray-900">
               Radio la Nube

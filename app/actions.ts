@@ -1,6 +1,9 @@
 "use server";
 
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8010/api/v1";
+const API_BASE =
+  process.env.BACKEND_INTERNAL_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "http://localhost:8010/api/v1";
 
 type ActionResult<T = unknown> = {
   ok: boolean;
@@ -27,17 +30,26 @@ async function postJson<T>(
   cookieHeader: string | null,
 ): Promise<ActionResult<T>> {
   const csrf = csrfFromCookie(cookieHeader);
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRF-Token": csrf,
-      ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-    },
-    body: JSON.stringify(payload),
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrf,
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+  } catch {
+    return {
+      ok: false,
+      status: 503,
+      error: `No se pudo conectar al backend en ${API_BASE}`,
+    };
+  }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -55,13 +67,22 @@ export async function loginAction(
   username: string,
   password: string,
 ): Promise<ActionResult<LoginResult>> {
-  const response = await fetch(`${API_BASE}/auth/login`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+      cache: "no-store",
+    });
+  } catch {
+    return {
+      ok: false,
+      status: 503,
+      error: `No se pudo conectar al backend en ${API_BASE}`,
+    };
+  }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {

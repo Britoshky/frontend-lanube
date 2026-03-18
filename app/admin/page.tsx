@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import {
@@ -54,8 +55,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState<boolean>(false);
 
   async function refreshAll() {
-    const [sessionRes, draftsRes, historyRes, configRes] = await Promise.all([
-      getSession(),
+    const sessionRes = await getSession();
+    const [draftsRes, historyRes, configRes] = await Promise.all([
       getDrafts(),
       getHistory(),
       getConfig(),
@@ -213,10 +214,13 @@ export default function AdminPage() {
               <p className="text-sm text-gray-500">{draft.news_source}</p>
               <p className="text-xs">Estado: {draft.status}</p>
               {draft.media_url ? (
-                <img
-                  className="max-w-sm rounded border"
+                <Image
+                  className="w-full max-w-sm h-auto rounded border"
                   src={draft.media_url.startsWith("http") ? draft.media_url : `${API_ORIGIN}${draft.media_url}`}
                   alt={draft.news_title}
+                  width={640}
+                  height={640}
+                  unoptimized
                 />
               ) : null}
               <div className="flex flex-wrap gap-2">
