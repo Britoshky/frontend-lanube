@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
   approveDraftAction,
+  deleteDraftAction,
   fetchOneNewsAction,
   loginAction,
   publishDraftAction,
@@ -44,6 +45,11 @@ export async function POST(req: NextRequest) {
 
   if (action === "publish") {
     const result = await publishDraftAction(Number(body.draftId), cookieHeader);
+    return NextResponse.json(result, { status: result.ok ? 200 : result.status });
+  }
+
+  if (action === "delete") {
+    const result = await deleteDraftAction(Number(body.draftId), cookieHeader);
     return NextResponse.json(result, { status: result.ok ? 200 : result.status });
   }
 

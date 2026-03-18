@@ -123,6 +123,10 @@ export async function publishDraftAction(draftId: number, cookieHeader: string |
   return postJson(`/pipeline/publish/${draftId}`, {}, cookieHeader);
 }
 
+export async function deleteDraftAction(draftId: number, cookieHeader: string | null): Promise<ActionResult> {
+  return postJson(`/pipeline/delete/${draftId}`, {}, cookieHeader);
+}
+
 export async function updateConfigAction(
   payload: {
     daily_news_target: number;
