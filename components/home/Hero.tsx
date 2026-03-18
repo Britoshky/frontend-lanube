@@ -30,6 +30,7 @@ const INITIAL_NOW_PLAYING: NowPlayingInfo = {
 };
 
 export default function Hero() {
+  const [isMounted, setIsMounted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>("idle");
   const [nowPlaying, setNowPlaying] = useState<NowPlayingInfo>(INITIAL_NOW_PLAYING);
@@ -116,6 +117,11 @@ export default function Hero() {
       void playWithRecovery();
     }
   };
+
+  // Hydration fix: only set dynamic state after client mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -263,6 +269,8 @@ export default function Hero() {
 
           <div className="rounded-xl sm:rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-[minmax(180px,220px)_1fr] items-stretch">
+            {isMounted ? (
+              <>
             <div className="flex items-center justify-center bg-black/20 p-2.5 sm:p-4 min-h-[160px] sm:min-h-0">
               <Image
                 src={nowPlaying.art}
@@ -313,6 +321,12 @@ export default function Hero() {
                 {nowPlaying.title}
               </p>
             </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center bg-black/20 p-2.5 sm:p-4 min-h-[160px] sm:min-h-0 col-span-2">
+                <p className="text-white/70">Cargando...</p>
+              </div>
+            )}
           </div>
           </div>
         </div>
