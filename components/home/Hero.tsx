@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Pause, Play } from "lucide-react";
 import Image from "next/image";
+import { getNowPlayingAction } from "@/app/actions/now-playing";
 
 const STREAM_URL = "https://a6.asurahosting.com:7360/radio.mp3";
-const NOW_PLAYING_URL = "https://a6.asurahosting.com/api/nowplaying/radio_la_nube";
 const BASE_RETRY_DELAY_MS = 1500;
 const MAX_RETRY_DELAY_MS = 20000;
 const NOW_PLAYING_POLL_MS = 15000;
@@ -122,26 +122,20 @@ export default function Hero() {
 
     const loadNowPlaying = async () => {
       try {
-        const response = await fetch(NOW_PLAYING_URL, {
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error("No se pudo cargar metadata");
+        const result = await getNowPlayingAction();
+        if (!result.ok || !result.data) {
+          throw new Error(result.error || "No se pudo cargar metadata");
         }
-
-        const data = await response.json();
-        const song = data?.now_playing?.song;
 
         if (isCancelled) {
           return;
         }
 
         setNowPlaying({
-          isOnline: Boolean(data?.is_online),
-          title: song?.title || "Sin información",
-          artist: song?.artist || "Radio La Nube",
-          art: song?.art || DEFAULT_COVER,
+          isOnline: result.data.isOnline,
+          title: result.data.title,
+          artist: result.data.artist,
+          art: result.data.art || DEFAULT_COVER,
         });
       } catch {
         if (isCancelled) {

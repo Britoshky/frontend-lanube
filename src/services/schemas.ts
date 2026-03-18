@@ -19,6 +19,8 @@ export const DraftSchema = z.object({
   rewritten_text: z.string(),
   image_path: z.string(),
   media_url: z.string().nullable(),
+  image_candidates: z.array(z.string().url()).default([]),
+  selected_image_url: z.string().url().nullable().optional(),
   audio_path: z.string().nullable(),
   status: z.string(),
   auto_approved: z.boolean(),
@@ -33,6 +35,7 @@ export const ReviewSchema = z.object({
   draft_id: z.number().int(),
   status: z.string(),
   news_title: z.string(),
+  image_candidates: z.array(z.string().url()).default([]),
   instagram_preview: z.object({
     caption: z.string(),
     image_url: z.string().nullable(),
