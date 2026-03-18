@@ -12,7 +12,8 @@ import {
 const API_BASE =
   process.env.BACKEND_INTERNAL_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "http://localhost:8010/api/v1";
+  process.env.BACKEND_FALLBACK_URL ||
+  "http://192.168.30.254:8010/api/v1";
 
 async function getJson(path: string, cookieHeader?: string | null): Promise<unknown> {
   const response = await fetch(`${API_BASE}${path}`, {

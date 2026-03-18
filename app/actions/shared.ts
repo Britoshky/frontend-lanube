@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 export const API_BASE =
   process.env.BACKEND_INTERNAL_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "http://localhost:8010/api/v1";
+  process.env.BACKEND_FALLBACK_URL ||
+  "http://192.168.30.254:8010/api/v1";
 
 const TRANSIENT_HTTP_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POST_RETRY_DELAYS_MS = [1200, 2500, 4000, 6000];
