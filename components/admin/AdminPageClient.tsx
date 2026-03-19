@@ -114,6 +114,10 @@ function resolveImageSrc(imageUrl: string): string {
 
   if (PUBLIC_MEDIA_BASE && imageUrl.startsWith("/media/")) {
     const filename = imageUrl.split("/").pop() || "";
+    // In local development, prefer backend media to avoid stale/404 public CDN paths.
+    if (process.env.NODE_ENV === "development") {
+      return `${API_ORIGIN}${imageUrl}`;
+    }
     return `${PUBLIC_MEDIA_BASE}/${filename}`;
   }
 

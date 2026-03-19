@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Mail, MapPin, Instagram, Facebook } from "lucide-react";
 
+const CURRENT_YEAR = 2026;
+
 export default function Footer() {
   return (
     <footer className="bg-sky-900 text-white py-12 px-6 md:px-10 lg:px-20">
@@ -67,7 +69,7 @@ export default function Footer() {
       </div>
 
       <div className="text-center text-xs mt-12 text-white/70">
-        © {new Date().getFullYear()} Radio La Nube 99.5 FM - Todos los derechos reservados
+        © {CURRENT_YEAR} Radio La Nube 99.5 FM - Todos los derechos reservados
       </div>
     </footer>
   );

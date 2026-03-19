@@ -1,4 +1,4 @@
-"use client";
+const LAST_UPDATED = "18/03/2026";
 
 export default function PoliticaDeSeguridad() {
   return (
@@ -71,9 +71,7 @@ export default function PoliticaDeSeguridad() {
           </a>
         </p>
 
-        <p className="mt-8 text-sm text-gray-600">
-          Última actualización: {new Date().toLocaleDateString("es-CL")}
-        </p>
+        <p className="mt-8 text-sm text-gray-600">Última actualización: {LAST_UPDATED}</p>
 
         <p className="mt-4 text-sm text-gray-700">
           Responsable legal: <strong>Héctor Brito Tapia</strong>, propietario de
