@@ -6,7 +6,7 @@ nixPkgs = ["nodejs_22", "npm-9_x"]
 aptPkgs = ["curl", "wget"]
 
 [phases.install]
-cmds = ["npm i"]
+cmds = ["npm ci --no-audit --no-fund"]
 cacheDirectories = ["/root/.npm"]
 
 [phases.build]
