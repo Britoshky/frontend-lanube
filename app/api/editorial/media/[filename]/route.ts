@@ -7,6 +7,8 @@ const API_BASE =
   "http://192.168.30.254:8010/api/v1";
 
 const BACKEND_ORIGIN = API_BASE.replace(/\/api\/v1\/?$/, "");
+const BACKEND_MEDIA_FALLBACK =
+  process.env.BACKEND_MEDIA_URL || "http://192.168.30.254:8010/media";
 
 function isSafeFilename(filename: string): boolean {
   return /^[A-Za-z0-9._-]+$/.test(filename);
@@ -23,17 +25,29 @@ export async function GET(
     return NextResponse.json({ detail: "Nombre de archivo invalido" }, { status: 400 });
   }
 
-  let upstream: Response;
-  try {
-    upstream = await fetch(`${BACKEND_ORIGIN}/media/${encodeURIComponent(decoded)}`, {
-      cache: "no-store",
-    });
-  } catch {
-    return NextResponse.json({ detail: "No se pudo conectar al backend media" }, { status: 503 });
+  const upstreamCandidates = [
+    `${BACKEND_ORIGIN}/media/${encodeURIComponent(decoded)}`,
+    `${BACKEND_MEDIA_FALLBACK}/${encodeURIComponent(decoded)}`,
+  ];
+
+  let upstream: Response | null = null;
+  let lastStatus = 503;
+
+  for (const candidate of upstreamCandidates) {
+    try {
+      const response = await fetch(candidate, { cache: "no-store" });
+      if (response.ok) {
+        upstream = response;
+        break;
+      }
+      lastStatus = response.status;
+    } catch {
+      lastStatus = 503;
+    }
   }
 
-  if (!upstream.ok) {
-    return NextResponse.json({ detail: "Imagen no encontrada" }, { status: upstream.status });
+  if (!upstream) {
+    return NextResponse.json({ detail: "Imagen no encontrada" }, { status: lastStatus });
   }
 
   const contentType = upstream.headers.get("content-type") || "application/octet-stream";
