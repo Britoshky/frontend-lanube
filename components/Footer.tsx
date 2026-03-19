@@ -55,6 +55,11 @@ export default function Footer() {
           <h3 className="text-lg font-semibold mb-3">Legal</h3>
           <ul className="space-y-2">
             <li>
+              <Link href="/politica-de-privacidad" className="hover:underline">
+                Politica de Privacidad
+              </Link>
+            </li>
+            <li>
               <Link href="/politicas-de-seguridad" className="hover:underline">
                 Política de Seguridad
               </Link>
