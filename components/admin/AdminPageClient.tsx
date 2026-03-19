@@ -110,30 +110,37 @@ function normalizeImageCandidateKey(imageUrl: string): string {
 
 function resolveImageSrc(imageUrl: string): string {
   if (!imageUrl) return imageUrl;
+
+  function mediaProxyUrl(filename: string): string {
+    return `/api/editorial/media/${encodeURIComponent(filename)}`;
+  }
+
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-    if (process.env.NODE_ENV === "development") {
-      try {
-        const parsed = new URL(imageUrl);
-        if (parsed.pathname.startsWith("/rrss/public/")) {
-          const filename = parsed.pathname.split("/").pop() || "";
-          if (filename) {
-            return `${API_ORIGIN}/media/${filename}`;
-          }
-        }
-      } catch {
-        return imageUrl;
+    try {
+      const parsed = new URL(imageUrl);
+      const filename = parsed.pathname.split("/").pop() || "";
+
+      if (
+        filename &&
+        (parsed.pathname.startsWith("/rrss/public/") || parsed.pathname.startsWith("/media/"))
+      ) {
+        return mediaProxyUrl(filename);
       }
+    } catch {
+      return imageUrl;
     }
+
     return imageUrl;
   }
 
-  if (PUBLIC_MEDIA_BASE && imageUrl.startsWith("/media/")) {
+  if (imageUrl.startsWith("/media/")) {
     const filename = imageUrl.split("/").pop() || "";
-    // In local development, prefer backend media to avoid stale/404 public CDN paths.
-    if (process.env.NODE_ENV === "development") {
-      return `${API_ORIGIN}${imageUrl}`;
-    }
-    return `${PUBLIC_MEDIA_BASE}/${filename}`;
+    if (filename) return mediaProxyUrl(filename);
+  }
+
+  if (PUBLIC_MEDIA_BASE && imageUrl.startsWith("/rrss/public/")) {
+    const filename = imageUrl.split("/").pop() || "";
+    if (filename) return mediaProxyUrl(filename);
   }
 
   return `${API_ORIGIN}${imageUrl}`;
