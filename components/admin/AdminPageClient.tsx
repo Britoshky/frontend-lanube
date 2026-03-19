@@ -261,7 +261,9 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
       }
 
       const previousDraftCount = drafts.length;
-      const result = await runWithRetry(() => runEditorialMutationAction(payload));
+      const result = payload.action === "publish"
+        ? await runEditorialMutationAction(payload)
+        : await runWithRetry(() => runEditorialMutationAction(payload));
       if (!result.ok) {
         throw new Error(result.error || "Error en accion");
       }
