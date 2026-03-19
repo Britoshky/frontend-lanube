@@ -35,23 +35,23 @@ export type EditorialSnapshot = {
 };
 
 export async function fetchOneNewsAction(cookieHeader: string | null): Promise<ActionResult> {
-  return postJson("/pipeline/fetch-one", {}, cookieHeader);
+  return postJson("/pipeline/fetch-one", {}, cookieHeader, { retryOnTransient: false });
 }
 
 export async function runPipelineAction(cookieHeader: string | null): Promise<ActionResult> {
-  return postJson("/pipeline/run", {}, cookieHeader);
+  return postJson("/pipeline/run", {}, cookieHeader, { retryOnTransient: false });
 }
 
 export async function approveDraftAction(draftId: number, cookieHeader: string | null): Promise<ActionResult> {
-  return postJson(`/pipeline/approve/${draftId}`, {}, cookieHeader);
+  return postJson(`/pipeline/approve/${draftId}`, {}, cookieHeader, { retryOnTransient: false });
 }
 
 export async function publishDraftAction(draftId: number, cookieHeader: string | null): Promise<ActionResult> {
-  return postJson(`/pipeline/publish/${draftId}`, {}, cookieHeader);
+  return postJson(`/pipeline/publish/${draftId}`, {}, cookieHeader, { retryOnTransient: false });
 }
 
 export async function deleteDraftAction(draftId: number, cookieHeader: string | null): Promise<ActionResult> {
-  return postJson(`/pipeline/delete/${draftId}`, {}, cookieHeader);
+  return postJson(`/pipeline/delete/${draftId}`, {}, cookieHeader, { retryOnTransient: false });
 }
 
 export async function selectDraftImageAction(
@@ -59,7 +59,7 @@ export async function selectDraftImageAction(
   imageUrl: string,
   cookieHeader: string | null,
 ): Promise<ActionResult> {
-  return postJson(`/pipeline/select-image/${draftId}`, { image_url: imageUrl }, cookieHeader);
+  return postJson(`/pipeline/select-image/${draftId}`, { image_url: imageUrl }, cookieHeader, { retryOnTransient: false });
 }
 
 export async function updateConfigAction(
@@ -70,7 +70,7 @@ export async function updateConfigAction(
   },
   cookieHeader: string | null,
 ): Promise<ActionResult> {
-  return postJson("/pipeline/config", payload, cookieHeader);
+  return postJson("/pipeline/config", payload, cookieHeader, { retryOnTransient: false });
 }
 
 export async function getEditorialSnapshotAction(): Promise<ActionResult<EditorialSnapshot>> {

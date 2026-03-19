@@ -85,11 +85,14 @@ export async function postJson<T>(
   path: string,
   payload: unknown,
   cookieHeader: string | null,
+  options?: { retryOnTransient?: boolean },
 ): Promise<ActionResult<T>> {
   const csrf = csrfFromCookie(cookieHeader);
   let lastTransportError = "";
+  const retryOnTransient = options?.retryOnTransient ?? true;
+  const maxAttempts = retryOnTransient ? POST_RETRY_DELAYS_MS.length : 0;
 
-  for (let attempt = 0; attempt <= POST_RETRY_DELAYS_MS.length; attempt += 1) {
+  for (let attempt = 0; attempt <= maxAttempts; attempt += 1) {
     let response: Response;
     try {
       response = await fetch(`${API_BASE}${path}`, {
@@ -105,7 +108,7 @@ export async function postJson<T>(
       });
     } catch (error) {
       lastTransportError = error instanceof Error ? error.message : "Error de red";
-      if (attempt < POST_RETRY_DELAYS_MS.length) {
+      if (attempt < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, POST_RETRY_DELAYS_MS[attempt]));
         continue;
       }
@@ -123,7 +126,7 @@ export async function postJson<T>(
     }
 
     const message = (data as { detail?: string }).detail || `POST ${path} fallo`;
-    if (!TRANSIENT_HTTP_STATUS.has(response.status) || attempt >= POST_RETRY_DELAYS_MS.length) {
+    if (!retryOnTransient || !TRANSIENT_HTTP_STATUS.has(response.status) || attempt >= maxAttempts) {
       return {
         ok: false,
         status: response.status,
