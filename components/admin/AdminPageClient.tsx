@@ -110,7 +110,22 @@ function normalizeImageCandidateKey(imageUrl: string): string {
 
 function resolveImageSrc(imageUrl: string): string {
   if (!imageUrl) return imageUrl;
-  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) return imageUrl;
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    if (process.env.NODE_ENV === "development") {
+      try {
+        const parsed = new URL(imageUrl);
+        if (parsed.pathname.startsWith("/rrss/public/")) {
+          const filename = parsed.pathname.split("/").pop() || "";
+          if (filename) {
+            return `${API_ORIGIN}/media/${filename}`;
+          }
+        }
+      } catch {
+        return imageUrl;
+      }
+    }
+    return imageUrl;
+  }
 
   if (PUBLIC_MEDIA_BASE && imageUrl.startsWith("/media/")) {
     const filename = imageUrl.split("/").pop() || "";
@@ -610,7 +625,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                                   }}
                                   sx={{ position: "relative", width: "100%", height: 96, borderRadius: 1.5, overflow: "hidden", border: "1px solid", borderColor: "divider", cursor: "zoom-in" }}
                                 >
-                                  <Image src={img} alt="review-image" fill style={{ objectFit: "cover" }} unoptimized />
+                                  <Image src={resolveImageSrc(img)} alt="review-image" fill style={{ objectFit: "cover" }} unoptimized />
                                 </Box>
                               </Grid>
                             ))}
