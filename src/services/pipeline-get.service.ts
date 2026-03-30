@@ -9,10 +9,13 @@ import {
   type SessionDTO,
 } from "./schemas";
 
+// En servidor (Node.js): usa BACKEND_INTERNAL_URL (IP local)
+// En navegador: usa NEXT_PUBLIC_* vars (public URLs)
+// Esta función corre siempre en servidor (Server Action)
 const API_BASE =
   process.env.BACKEND_INTERNAL_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
-  process.env.BACKEND_FALLBACK_URL ||
   "http://192.168.30.254:8010/api/v1";
 
 async function getJson(path: string, cookieHeader?: string | null): Promise<unknown> {
