@@ -231,12 +231,14 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
     setLoadingKey("login");
     setError("");
     try {
-      const result = await runWithRetry(() => runEditorialMutationAction({ action: "login", username, password }));
+      // Login must fail fast; long retries here keep the button stuck in "Iniciando...".
+      const result = await runEditorialMutationAction({ action: "login", username, password });
       if (!result.ok) {
         throw new Error(result.error || "Error de login");
       }
-      await refreshAll();
       showToast("Sesion iniciada correctamente", "success");
+      // Force a fresh server render with authenticated cookies and avoid long action streams.
+      window.location.assign("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error de login");
     } finally {
@@ -247,6 +249,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
   async function handleAction(payload: EditorialActionPayload, key: string) {
     setLoadingKey(key);
     setError("");
+    let publishDraftId: number | null = null;
     try {
       if ((payload.action === "approve" || payload.action === "publish") && payload.draftId) {
         const current = drafts.find((item) => item.id === payload.draftId);
@@ -257,6 +260,13 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
         if (payload.action === "approve" && current?.status === "approved") {
           showToast("Este post ya esta aprobado", "info");
           return;
+        }
+
+        if (payload.action === "publish") {
+          publishDraftId = payload.draftId;
+          setDrafts((prev) =>
+            prev.map((item) => (item.id === payload.draftId ? { ...item, status: "publishing" } : item)),
+          );
         }
       }
 
@@ -302,6 +312,11 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
         }
       }
     } catch (err) {
+      if (publishDraftId) {
+        setDrafts((prev) =>
+          prev.map((item) => (item.id === publishDraftId && item.status === "publishing" ? { ...item, status: "approved" } : item)),
+        );
+      }
       const message = err instanceof Error ? err.message : "Error en accion";
       if (message.includes("Failed to find Server Action")) {
         setError("La sesion del panel quedo desactualizada. Recargando para sincronizar...");
@@ -584,8 +599,8 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                             <Button size="small" color="info" variant="contained" onClick={() => handleAction({ action: "approve", draftId: draft.id }, `approve-${draft.id}`)} disabled={loadingKey === `approve-${draft.id}` || draft.status === "approved" || draft.status === "published"}>
                               {draft.status === "published" ? "Publicado" : draft.status === "approved" ? "Aprobado" : "Aprobar"}
                             </Button>
-                            <Button size="small" color="error" variant="contained" onClick={() => handleAction({ action: "publish", draftId: draft.id }, `publish-${draft.id}`)} disabled={loadingKey === `publish-${draft.id}` || draft.status === "published"}>
-                              {draft.status === "published" ? "Ya publicado" : "Publicar"}
+                            <Button size="small" color="error" variant="contained" onClick={() => handleAction({ action: "publish", draftId: draft.id }, `publish-${draft.id}`)} disabled={loadingKey === `publish-${draft.id}` || draft.status === "published" || draft.status === "publishing"}>
+                              {loadingKey === `publish-${draft.id}` || draft.status === "publishing" ? "Publicando..." : draft.status === "published" ? "Ya publicado" : "Publicar"}
                             </Button>
                             <Button size="small" variant="text" color="inherit" onClick={() => handleAction({ action: "delete", draftId: draft.id }, `delete-${draft.id}`)} disabled={loadingKey === `delete-${draft.id}`}>
                               Eliminar
