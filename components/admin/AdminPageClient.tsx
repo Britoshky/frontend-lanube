@@ -277,6 +277,14 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
       if (!result.ok) {
         throw new Error(result.error || "Error en accion");
       }
+
+      if (payload.action === "publish") {
+        const publishData = (result.data as { published?: boolean; reason?: string; partial?: boolean } | undefined) || {};
+        if (!publishData.published) {
+          throw new Error(publishData.reason || "No se pudo publicar en Meta");
+        }
+      }
+
       const responseMessage = (result.data as { message?: string } | undefined)?.message;
 
       if (payload.action === "fetch-one") {
