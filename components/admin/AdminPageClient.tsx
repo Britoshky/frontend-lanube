@@ -250,6 +250,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
     setLoadingKey(key);
     setError("");
     let publishDraftId: number | null = null;
+    let publishSucceeded = false;
     try {
       if ((payload.action === "approve" || payload.action === "publish") && payload.draftId) {
         const current = drafts.find((item) => item.id === payload.draftId);
@@ -283,6 +284,10 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
         if (!publishData.published) {
           throw new Error(publishData.reason || "No se pudo publicar en Meta");
         }
+        publishSucceeded = true;
+        setDrafts((prev) =>
+          prev.map((item) => (item.id === payload.draftId ? { ...item, status: "published" } : item)),
+        );
       }
 
       const responseMessage = (result.data as { message?: string } | undefined)?.message;
@@ -303,7 +308,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
         return;
       }
 
-      const snapshot = await refreshAll();
+      const snapshot = payload.action === "publish" ? null : await refreshAll();
 
       if (payload.action === "config") {
         showToast("Configuracion actualizada", "success");
@@ -312,6 +317,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
       } else if (payload.action === "approve") {
         showToast("Draft aprobado", "success");
       } else if (payload.action === "publish") {
+        void refreshAll();
         showToast("Draft publicado", "success");
       } else if (payload.action === "run") {
         showToast(responseMessage || "Pipeline ejecutado", "success");
@@ -320,7 +326,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
         }
       }
     } catch (err) {
-      if (publishDraftId) {
+      if (publishDraftId && !publishSucceeded) {
         setDrafts((prev) =>
           prev.map((item) => (item.id === publishDraftId && item.status === "publishing" ? { ...item, status: "approved" } : item)),
         );
