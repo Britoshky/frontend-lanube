@@ -2,8 +2,8 @@
 
 import {
   getConfig,
-  getDrafts,
-  getHistory,
+  getDraftsPaged,
+  getHistoryPaged,
   getReview,
   getSession,
 } from "@/src/services/pipeline-get.service";
@@ -31,6 +31,8 @@ export type EditorialSnapshot = {
   username: string | null;
   drafts: DraftDTO[];
   history: DraftDTO[];
+  drafts_total: number;
+  history_total: number;
   config: PipelineConfigDTO;
 };
 
@@ -73,14 +75,19 @@ export async function updateConfigAction(
   return postJson("/pipeline/config", payload, cookieHeader, { retryOnTransient: false });
 }
 
-export async function getEditorialSnapshotAction(): Promise<ActionResult<EditorialSnapshot>> {
+export async function getEditorialSnapshotAction(
+  draftsPage = 1,
+  draftsPageSize = 10,
+  historyPage = 1,
+  historyPageSize = 10,
+): Promise<ActionResult<EditorialSnapshot>> {
   const cookieHeader = await resolveCookieHeader();
 
   try {
     const [sessionRes, draftsRes, historyRes, configRes] = await Promise.all([
       getSession(cookieHeader),
-      getDrafts(cookieHeader),
-      getHistory(cookieHeader),
+      getDraftsPaged(draftsPage, draftsPageSize, cookieHeader),
+      getHistoryPaged(historyPage, historyPageSize, cookieHeader),
       getConfig(cookieHeader),
     ]);
 
@@ -89,8 +96,10 @@ export async function getEditorialSnapshotAction(): Promise<ActionResult<Editori
       status: 200,
       data: {
         username: sessionRes.username,
-        drafts: draftsRes,
-        history: historyRes,
+        drafts: draftsRes.items,
+        history: historyRes.items,
+        drafts_total: draftsRes.total,
+        history_total: historyRes.total,
         config: configRes,
       },
     };
@@ -103,6 +112,8 @@ export async function getEditorialSnapshotAction(): Promise<ActionResult<Editori
         username: null,
         drafts: [],
         history: [],
+        drafts_total: 0,
+        history_total: 0,
         config: {
           daily_news_target: 5,
           schedule_times: "08:00,13:00,19:00",

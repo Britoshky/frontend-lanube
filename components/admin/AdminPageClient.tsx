@@ -48,8 +48,12 @@ type AdminPageClientProps = {
   initialSession: string | null;
   initialDrafts: DraftDTO[];
   initialHistory: DraftDTO[];
+  initialDraftsTotal: number;
+  initialHistoryTotal: number;
   initialConfig: PipelineConfigDTO;
 };
+
+const PAGE_SIZE = 10;
 
 type ImagePreviewState = {
   draftId: number;
@@ -146,12 +150,16 @@ function resolveImageSrc(imageUrl: string): string {
   return `${API_ORIGIN}${imageUrl}`;
 }
 
-export default function AdminPageClient({ initialSession, initialDrafts, initialHistory, initialConfig }: AdminPageClientProps) {
+export default function AdminPageClient({ initialSession, initialDrafts, initialHistory, initialDraftsTotal, initialHistoryTotal, initialConfig }: AdminPageClientProps) {
   const [username, setUsername] = useState("britoshky@gmail.com");
   const [password, setPassword] = useState("CdCd@2627");
   const [session, setSession] = useState<string | null>(initialSession);
   const [drafts, setDrafts] = useState<DraftDTO[]>(initialDrafts);
   const [history, setHistory] = useState<DraftDTO[]>(initialHistory);
+  const [draftsTotal, setDraftsTotal] = useState<number>(initialDraftsTotal);
+  const [historyTotal, setHistoryTotal] = useState<number>(initialHistoryTotal);
+  const [draftPage, setDraftPage] = useState<number>(1);
+  const [historyPage, setHistoryPage] = useState<number>(1);
   const [config, setConfig] = useState<PipelineConfigDTO>(initialConfig);
   const [review, setReview] = useState<ReviewDTO | null>(null);
   const [error, setError] = useState<string>("");
@@ -193,20 +201,45 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
     return { ready, approved, published };
   }, [drafts]);
 
-  async function refreshAll(): Promise<EditorialSnapshot | null> {
-    const snapshot = await getEditorialSnapshotAction();
+  async function refreshAll(nextDraftPage = draftPage, nextHistoryPage = historyPage): Promise<EditorialSnapshot | null> {
+    const snapshot = await getEditorialSnapshotAction(nextDraftPage, PAGE_SIZE, nextHistoryPage, PAGE_SIZE);
     if (!snapshot.ok || !snapshot.data) {
       setSession(null);
       setDrafts([]);
       setHistory([]);
+      setDraftsTotal(0);
+      setHistoryTotal(0);
       return null;
     }
 
     setSession(snapshot.data.username);
     setDrafts(snapshot.data.drafts);
     setHistory(snapshot.data.history);
+    setDraftsTotal(snapshot.data.drafts_total);
+    setHistoryTotal(snapshot.data.history_total);
     setConfig(snapshot.data.config);
     return snapshot.data;
+  }
+
+  const draftPages = Math.max(1, Math.ceil(draftsTotal / PAGE_SIZE));
+  const historyPages = Math.max(1, Math.ceil(historyTotal / PAGE_SIZE));
+
+  async function goDraftPage(nextPage: number) {
+    const target = Math.min(Math.max(nextPage, 1), draftPages);
+    if (target === draftPage) return;
+    setLoadingKey("draft-page");
+    setDraftPage(target);
+    await refreshAll(target, historyPage);
+    setLoadingKey(null);
+  }
+
+  async function goHistoryPage(nextPage: number) {
+    const target = Math.min(Math.max(nextPage, 1), historyPages);
+    if (target === historyPage) return;
+    setLoadingKey("history-page");
+    setHistoryPage(target);
+    await refreshAll(draftPage, target);
+    setLoadingKey(null);
   }
 
   async function waitForNewDraft(previousDraftCount: number, expectedDraftIds: number[] = []): Promise<EditorialSnapshot | null> {
@@ -550,6 +583,14 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, lg: 8 }}>
                 <Stack spacing={2}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body2" color="text.secondary">Mostrando {drafts.length} de {draftsTotal}</Typography>
+                    <Stack direction="row" spacing={1}>
+                      <Button size="small" variant="outlined" disabled={draftPage <= 1 || loadingKey === "draft-page"} onClick={() => goDraftPage(draftPage - 1)}>Anterior</Button>
+                      <Typography variant="body2" sx={{ alignSelf: "center" }}>Pagina {draftPage} de {draftPages}</Typography>
+                      <Button size="small" variant="outlined" disabled={draftPage >= draftPages || loadingKey === "draft-page"} onClick={() => goDraftPage(draftPage + 1)}>Siguiente</Button>
+                    </Stack>
+                  </Stack>
                   {drafts.length === 0 ? (
                     <Alert severity="info">No hay borradores por ahora.</Alert>
                   ) : null}
@@ -691,6 +732,14 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
 
           <TabPanel value={tab} index={2}>
             <Stack spacing={1.2}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="body2" color="text.secondary">Mostrando {history.length} de {historyTotal}</Typography>
+                <Stack direction="row" spacing={1}>
+                  <Button size="small" variant="outlined" disabled={historyPage <= 1 || loadingKey === "history-page"} onClick={() => goHistoryPage(historyPage - 1)}>Anterior</Button>
+                  <Typography variant="body2" sx={{ alignSelf: "center" }}>Pagina {historyPage} de {historyPages}</Typography>
+                  <Button size="small" variant="outlined" disabled={historyPage >= historyPages || loadingKey === "history-page"} onClick={() => goHistoryPage(historyPage + 1)}>Siguiente</Button>
+                </Stack>
+              </Stack>
               {history.length === 0 ? (
                 <Alert severity="info">Aun no hay historial.</Alert>
               ) : (
