@@ -6,6 +6,9 @@ export const API_BASE =
   process.env.BACKEND_FALLBACK_URL ||
   "http://192.168.30.254:8010/api/v1";
 
+const FETCH_TIMEOUT_MS = 10000;
+const PUBLISH_TIMEOUT_MS = 120000;
+
 const TRANSIENT_HTTP_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POST_RETRY_DELAYS_MS = [1200, 2500, 4000, 6000];
 
@@ -91,10 +94,13 @@ export async function postJson<T>(
   let lastTransportError = "";
   const retryOnTransient = options?.retryOnTransient ?? true;
   const maxAttempts = retryOnTransient ? POST_RETRY_DELAYS_MS.length : 0;
+  const timeoutMs = path.includes('/pipeline/publish/') ? PUBLISH_TIMEOUT_MS : FETCH_TIMEOUT_MS;
 
   for (let attempt = 0; attempt <= maxAttempts; attempt += 1) {
     let response: Response;
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       response = await fetch(`${API_BASE}${path}`, {
         method: "POST",
         credentials: "include",
@@ -105,9 +111,15 @@ export async function postJson<T>(
         },
         body: JSON.stringify(payload),
         cache: "no-store",
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
     } catch (error) {
-      lastTransportError = error instanceof Error ? error.message : "Error de red";
+      if (error instanceof Error && error.name === "AbortError") {
+        lastTransportError = `Timeout de ${timeoutMs / 1000}s agotado`;
+      } else {
+        lastTransportError = error instanceof Error ? error.message : "Error de red";
+      }
       if (attempt < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, POST_RETRY_DELAYS_MS[attempt]));
         continue;

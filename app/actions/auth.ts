@@ -2,6 +2,8 @@
 
 import { API_BASE, type ActionResult } from "@/app/actions/shared";
 
+const LOGIN_TIMEOUT_MS = 10000;
+
 export type LoginResult = {
   message: string;
   setCookies: string[];
@@ -13,18 +15,25 @@ export async function loginAction(
 ): Promise<ActionResult<LoginResult>> {
   let response: Response;
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), LOGIN_TIMEOUT_MS);
     response = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
       cache: "no-store",
+      signal: controller.signal,
     });
-  } catch {
+    clearTimeout(timeoutId);
+  } catch (error) {
+    const timeoutMessage = error instanceof Error && error.name === "AbortError"
+      ? `Tiempo de espera agotado (${LOGIN_TIMEOUT_MS / 1000}s)`
+      : "";
     return {
       ok: false,
       status: 503,
-      error: `No se pudo conectar al backend en ${API_BASE}`,
+      error: `No se pudo conectar al backend en ${API_BASE}${timeoutMessage ? `. ${timeoutMessage}` : ""}`,
     };
   }
 

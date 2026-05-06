@@ -30,6 +30,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PublishIcon from "@mui/icons-material/Publish";
 import ReviewsIcon from "@mui/icons-material/Reviews";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 
 import {
   type EditorialSnapshot,
@@ -172,6 +173,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
     message: "",
     severity: "info",
   });
+  const [purgeDialogOpen, setPurgeDialogOpen] = useState(false);
 
   function showToast(message: string, severity: ToastState["severity"]) {
     setToast({ open: true, message, severity });
@@ -313,14 +315,32 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
       }
 
       if (payload.action === "publish") {
-        const publishData = (result.data as { published?: boolean; reason?: string; partial?: boolean } | undefined) || {};
+        let publishData = (result.data as { published?: boolean; reason?: string; partial?: boolean } | undefined) || {};
+
+        const transientReason = String(publishData.reason || "").toLowerCase();
+        const shouldRetryTransientPublish =
+          !publishData.published &&
+          (transientReason.includes("contenedor") || transientReason.includes("no listo") || transientReason.includes("pending"));
+
+        if (shouldRetryTransientPublish) {
+          await new Promise((resolve) => setTimeout(resolve, 4000));
+          const retryResult = await runEditorialMutationAction(payload);
+          if (retryResult.ok) {
+            publishData = (retryResult.data as { published?: boolean; reason?: string; partial?: boolean } | undefined) || publishData;
+          }
+        }
+
         if (!publishData.published) {
-          throw new Error(publishData.reason || "No se pudo publicar en Meta");
+          throw new Error(`No se publico: ${publishData.reason || "Meta no confirmo publicacion"}`);
         }
         publishSucceeded = true;
         setDrafts((prev) =>
           prev.map((item) => (item.id === payload.draftId ? { ...item, status: "published" } : item)),
         );
+
+        if (publishData.reason) {
+          showToast(publishData.reason, "info");
+        }
       }
 
       const responseMessage = (result.data as { message?: string } | undefined)?.message;
@@ -347,6 +367,12 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
         showToast("Configuracion actualizada", "success");
       } else if (payload.action === "delete") {
         showToast("Draft eliminado", "success");
+      } else if (payload.action === "delete-all-unpublished") {
+        const data = result.data as { deleted_drafts?: number; deleted_news_items?: number } | undefined;
+        const d = data?.deleted_drafts ?? 0;
+        const n = data?.deleted_news_items ?? 0;
+        showToast(`Eliminados ${d} borradores y ${n} noticias huérfanas`, "success");
+        setPurgeDialogOpen(false);
       } else if (payload.action === "approve") {
         showToast("Draft aprobado", "success");
       } else if (payload.action === "publish") {
@@ -583,9 +609,19 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, lg: 8 }}>
                 <Stack spacing={2}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
                     <Typography variant="body2" color="text.secondary">Mostrando {drafts.length} de {draftsTotal}</Typography>
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                      <Button
+                        size="small"
+                        color="error"
+                        variant="outlined"
+                        startIcon={<DeleteSweepIcon />}
+                        onClick={() => setPurgeDialogOpen(true)}
+                        disabled={loadingKey === "purge-unpublished"}
+                      >
+                        Borrar todos no publicados
+                      </Button>
                       <Button size="small" variant="outlined" disabled={draftPage <= 1 || loadingKey === "draft-page"} onClick={() => goDraftPage(draftPage - 1)}>Anterior</Button>
                       <Typography variant="body2" sx={{ alignSelf: "center" }}>Pagina {draftPage} de {draftPages}</Typography>
                       <Button size="small" variant="outlined" disabled={draftPage >= draftPages || loadingKey === "draft-page"} onClick={() => goDraftPage(draftPage + 1)}>Siguiente</Button>
@@ -763,6 +799,27 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
       {error ? (
         <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
       ) : null}
+
+      <Dialog open={purgeDialogOpen} onClose={() => setPurgeDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Eliminar borradores no publicados</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            Se eliminarán todos los posts en estado listo, aprobado o publicando. Los ya publicados en redes no se tocan.
+            Esta acción no se puede deshacer.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPurgeDialogOpen(false)}>Cancelar</Button>
+          <Button
+            color="error"
+            variant="contained"
+            disabled={loadingKey === "purge-unpublished"}
+            onClick={() => handleAction({ action: "delete-all-unpublished" }, "purge-unpublished")}
+          >
+            {loadingKey === "purge-unpublished" ? "Eliminando..." : "Eliminar todo"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={Boolean(imagePreview)} onClose={() => setImagePreview(null)} maxWidth="md" fullWidth>
         <DialogTitle>{imagePreview?.newsTitle || "Imagen"}</DialogTitle>

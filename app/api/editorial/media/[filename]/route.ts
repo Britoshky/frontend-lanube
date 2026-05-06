@@ -9,6 +9,8 @@ const API_BASE =
 const BACKEND_ORIGIN = API_BASE.replace(/\/api\/v1\/?$/, "");
 const BACKEND_MEDIA_FALLBACK =
   process.env.BACKEND_MEDIA_URL || "http://192.168.30.254:8010/media";
+const LEGACY_PUBLIC_MEDIA_BASE =
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL || "https://lanubefm.cl/rrss/public";
 
 function isSafeFilename(filename: string): boolean {
   return /^[A-Za-z0-9._-]+$/.test(filename);
@@ -28,36 +30,21 @@ export async function GET(
   const upstreamCandidates = [
     `${BACKEND_ORIGIN}/media/${encodeURIComponent(decoded)}`,
     `${BACKEND_MEDIA_FALLBACK}/${encodeURIComponent(decoded)}`,
+    `${LEGACY_PUBLIC_MEDIA_BASE.replace(/\/$/, "")}/${encodeURIComponent(decoded)}`,
   ];
 
-  let upstream: Response | null = null;
-  let lastStatus = 503;
-
+  // Redirect avoids buffering binary streams in Next route handlers,
+  // preventing intermittent "Error in input stream" issues.
   for (const candidate of upstreamCandidates) {
     try {
-      const response = await fetch(candidate, { cache: "no-store" });
-      if (response.ok) {
-        upstream = response;
-        break;
+      const head = await fetch(candidate, { method: "HEAD", cache: "no-store" });
+      if (head.ok) {
+        return NextResponse.redirect(candidate, { status: 307 });
       }
-      lastStatus = response.status;
     } catch {
-      lastStatus = 503;
+      // Try next candidate.
     }
   }
 
-  if (!upstream) {
-    return NextResponse.json({ detail: "Imagen no encontrada" }, { status: lastStatus });
-  }
-
-  const contentType = upstream.headers.get("content-type") || "application/octet-stream";
-  const body = await upstream.arrayBuffer();
-
-  return new NextResponse(body, {
-    status: 200,
-    headers: {
-      "Content-Type": contentType,
-      "Cache-Control": "public, max-age=300",
-    },
-  });
+  return NextResponse.json({ detail: "Imagen no encontrada" }, { status: 404 });
 }

@@ -17,7 +17,16 @@ import {
 } from "@/app/actions/shared";
 
 export type EditorialActionPayload = {
-  action: "login" | "fetch-one" | "run" | "approve" | "publish" | "delete" | "config" | "select-image";
+  action:
+    | "login"
+    | "fetch-one"
+    | "run"
+    | "approve"
+    | "publish"
+    | "delete"
+    | "delete-all-unpublished"
+    | "config"
+    | "select-image";
   username?: string;
   password?: string;
   draftId?: number;
@@ -167,6 +176,10 @@ export async function runEditorialMutationAction(payload: EditorialActionPayload
 
   if (payload.action === "delete") {
     return deleteDraftAction(Number(payload.draftId), cookieHeader);
+  }
+
+  if (payload.action === "delete-all-unpublished") {
+    return postJson("/pipeline/delete-unpublished", {}, cookieHeader, { retryOnTransient: false });
   }
 
   if (payload.action === "select-image") {
