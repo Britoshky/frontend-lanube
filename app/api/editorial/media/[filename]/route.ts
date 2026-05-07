@@ -16,6 +16,22 @@ function isSafeFilename(filename: string): boolean {
   return /^[A-Za-z0-9._-]+$/.test(filename);
 }
 
+async function fetchImageBytes(url: string): Promise<Response | null> {
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(45_000),
+    });
+    if (!res.ok) return null;
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    if (!ct.startsWith("image/")) return null;
+    return res;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(
   _req: NextRequest,
   context: { params: Promise<{ filename: string }> },
@@ -33,17 +49,25 @@ export async function GET(
     `${LEGACY_PUBLIC_MEDIA_BASE.replace(/\/$/, "")}/${encodeURIComponent(decoded)}`,
   ];
 
-  // Redirect avoids buffering binary streams in Next route handlers,
-  // preventing intermittent "Error in input stream" issues.
+  /**
+   * Importante: no redirigir a IPs privadas (ej. 192.168.x.x). Instagram/Meta
+   * descarga la URL desde internet; un 307 a una LAN rompe la publicación.
+   * Aquí proxyamos la imagen desde el servidor Next (solo accesible en red interna al backend).
+   */
   for (const candidate of upstreamCandidates) {
-    try {
-      const head = await fetch(candidate, { method: "HEAD", cache: "no-store" });
-      if (head.ok) {
-        return NextResponse.redirect(candidate, { status: 307 });
-      }
-    } catch {
-      // Try next candidate.
-    }
+    const upstream = await fetchImageBytes(candidate);
+    if (!upstream) continue;
+
+    const contentType = upstream.headers.get("content-type") || "image/jpeg";
+    const buf = await upstream.arrayBuffer();
+
+    return new NextResponse(buf, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
   }
 
   return NextResponse.json({ detail: "Imagen no encontrada" }, { status: 404 });
