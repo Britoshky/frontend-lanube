@@ -35,16 +35,17 @@ export const ReviewSchema = z.object({
   draft_id: z.number().int(),
   status: z.string(),
   news_title: z.string(),
-  image_candidates: z.array(z.string().url()).default([]),
+  /** URLs del articulo; z.url() fallaba con algunos CDNs y rompia todo el Review sin mensaje claro. */
+  image_candidates: z.array(z.string().min(1)).default([]),
   instagram_preview: z.object({
     caption: z.string(),
-    image_url: z.string().nullable(),
-    audio_path: z.string().nullable(),
+    image_url: z.string().nullable().optional(),
+    audio_path: z.string().nullable().optional(),
   }),
   facebook_preview: z.object({
     caption: z.string(),
-    image_url: z.string().nullable(),
-    audio_path: z.string().nullable(),
+    image_url: z.string().nullable().optional(),
+    audio_path: z.string().nullable().optional(),
   }),
 });
 

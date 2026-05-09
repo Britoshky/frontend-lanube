@@ -19,6 +19,8 @@ const API_BASE =
   "http://192.168.30.254:4003/api/v1";
 
 const GET_TIMEOUT_MS = 8000;
+/** Re-scrape del articulo + tamano de imagenes; 8s corta en produccion y parece que Review no hace nada. */
+const GET_REVIEW_TIMEOUT_MS = 90000;
 
 export type PagedDraftResult = {
   items: DraftDTO[];
@@ -28,8 +30,9 @@ export type PagedDraftResult = {
 };
 
 async function getJson(path: string, cookieHeader?: string | null): Promise<unknown> {
+  const timeoutMs = path.includes("/pipeline/review/") ? GET_REVIEW_TIMEOUT_MS : GET_TIMEOUT_MS;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), GET_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   let response: Response;
   try {
@@ -45,7 +48,7 @@ async function getJson(path: string, cookieHeader?: string | null): Promise<unkn
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(`GET ${path} timeout (${GET_TIMEOUT_MS / 1000}s)`);
+      throw new Error(`GET ${path} timeout (${timeoutMs / 1000}s)`);
     }
     throw error;
   } finally {
@@ -150,5 +153,12 @@ export async function getConfig(cookieHeader?: string | null): Promise<PipelineC
 }
 
 export async function getReview(draftId: number, cookieHeader?: string | null): Promise<ReviewDTO> {
-  return ReviewSchema.parse(await getJson(`/pipeline/review/${draftId}`, cookieHeader));
+  // quick=1: evita scrape pesado en el API (timeouts en Coolify / admin).
+  const raw = await getJson(`/pipeline/review/${draftId}?quick=1`, cookieHeader);
+  const parsed = ReviewSchema.safeParse(raw);
+  if (!parsed.success) {
+    const detail = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+    throw new Error(`Respuesta de review invalida (${detail})`);
+  }
+  return parsed.data;
 }

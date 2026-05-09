@@ -725,6 +725,26 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                     ) : (
                       <Stack spacing={2}>
                         <Typography variant="subtitle2" fontWeight={700}>{review.news_title}</Typography>
+                        {review.instagram_preview.image_url ? (
+                          <Box>
+                            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.75 }}>
+                              Imagen del post (tarjeta editorial)
+                            </Typography>
+                            <Box sx={{ position: "relative", width: "100%", height: 240, borderRadius: 1.5, overflow: "hidden", border: "1px solid", borderColor: "divider", bgcolor: "action.hover" }}>
+                              <Image
+                                src={resolveImageSrc(review.instagram_preview.image_url)}
+                                alt="Vista previa imagen publicada"
+                                fill
+                                style={{ objectFit: "contain" }}
+                                unoptimized
+                              />
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Alert severity="warning" sx={{ py: 0.5 }}>
+                            No hay URL de imagen para la previa. Revisa PUBLIC_MEDIA_BASE_URL en el API o el archivo en /media.
+                          </Alert>
+                        )}
                         {review.image_candidates?.length ? (
                           <Grid container spacing={1}>
                             {review.image_candidates.slice(0, 8).map((img) => (
