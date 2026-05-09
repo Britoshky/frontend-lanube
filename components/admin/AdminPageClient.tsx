@@ -42,7 +42,7 @@ import {
 import type { DraftDTO, PipelineConfigDTO, ReviewDTO } from "@/src/services/schemas";
 
 const API_ORIGIN =
-  (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8010/api/v1").replace("/api/v1", "");
+  (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4003/api/v1").replace("/api/v1", "");
 const PUBLIC_MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL || "").trim().replace(/\/$/, "");
 
 type AdminPageClientProps = {

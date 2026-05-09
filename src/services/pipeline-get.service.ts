@@ -16,7 +16,7 @@ const API_BASE =
   process.env.BACKEND_INTERNAL_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "http://192.168.30.254:8010/api/v1";
+  "http://192.168.30.254:4003/api/v1";
 
 const GET_TIMEOUT_MS = 8000;
 

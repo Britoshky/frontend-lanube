@@ -15,7 +15,7 @@ const API_BASE =
   process.env.BACKEND_INTERNAL_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.BACKEND_FALLBACK_URL ||
-  "http://192.168.30.254:8010/api/v1";
+  "http://192.168.30.254:4003/api/v1";
 
 function setCookieHeaders(target: Headers, source: Headers): void {
   const getSetCookie = (source as Headers & { getSetCookie?: () => string[] }).getSetCookie;
