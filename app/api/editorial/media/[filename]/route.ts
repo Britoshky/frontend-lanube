@@ -10,7 +10,7 @@ const BACKEND_ORIGIN = API_BASE.replace(/\/api\/v1\/?$/, "");
 const BACKEND_MEDIA_FALLBACK =
   process.env.BACKEND_MEDIA_URL || "http://192.168.30.254:8010/media";
 const LEGACY_PUBLIC_MEDIA_BASE =
-  process.env.NEXT_PUBLIC_MEDIA_BASE_URL || "https://lanubefm.cl/rrss/public";
+  process.env.NEXT_PUBLIC_MEDIA_BASE_URL || "https://lanube.cl/api/editorial/media";
 
 function isSafeFilename(filename: string): boolean {
   return /^[A-Za-z0-9._-]+$/.test(filename);
