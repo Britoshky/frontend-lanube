@@ -73,6 +73,7 @@ type ToastState = {
 type PipelineRunResult = {
   prepared_posts?: number;
   draft_ids?: number[];
+  skip_reasons?: string[];
 };
 
 function TabPanel({ value, index, children }: { value: number; index: number; children: ReactNode }) {
@@ -352,7 +353,15 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
 
         if (createdCount <= 0) {
           await refreshAll();
-          showToast("No se creo una noticia nueva (probablemente duplicada en fuente).", "warning");
+          const skips = Array.isArray(runInfo.skip_reasons) ? runInfo.skip_reasons : [];
+          const hint =
+            skips.length > 0
+              ? ` Motivos (${skips.length}): ${skips.slice(0, 5).join(" · ")}${skips.length > 5 ? "…" : ""}`
+              : "";
+          showToast(
+            `No se creo una noticia nueva.${hint || " Revisa duplicados, imagenes, calidad u Ollama."}`,
+            "warning",
+          );
           return;
         }
 
