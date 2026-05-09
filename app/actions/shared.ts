@@ -8,6 +8,8 @@ export const API_BASE =
 
 const FETCH_TIMEOUT_MS = 10000;
 const PUBLISH_TIMEOUT_MS = 120000;
+/** fetch-one / run llaman a Ollama + descarga de imagen; 10s provoca abort falso en admin. */
+const PIPELINE_MUTATION_TIMEOUT_MS = 180000;
 
 const TRANSIENT_HTTP_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POST_RETRY_DELAYS_MS = [1200, 2500, 4000, 6000];
@@ -94,7 +96,18 @@ export async function postJson<T>(
   let lastTransportError = "";
   const retryOnTransient = options?.retryOnTransient ?? true;
   const maxAttempts = retryOnTransient ? POST_RETRY_DELAYS_MS.length : 0;
-  const timeoutMs = path.includes('/pipeline/publish/') ? PUBLISH_TIMEOUT_MS : FETCH_TIMEOUT_MS;
+  const timeoutMs = (() => {
+    if (path.includes('/pipeline/publish/')) return PUBLISH_TIMEOUT_MS;
+    if (
+      path.includes('/pipeline/fetch-one') ||
+      path.includes('/pipeline/run') ||
+      path.includes('/pipeline/delete-unpublished') ||
+      path.includes('/pipeline/select-image')
+    ) {
+      return PIPELINE_MUTATION_TIMEOUT_MS;
+    }
+    return FETCH_TIMEOUT_MS;
+  })();
 
   for (let attempt = 0; attempt <= maxAttempts; attempt += 1) {
     let response: Response;
