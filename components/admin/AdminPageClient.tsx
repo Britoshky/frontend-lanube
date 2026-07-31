@@ -653,7 +653,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                         <CardContent>
                           {cover ? (
                             <Box sx={{ position: "relative", width: "100%", borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider" }}>
-                              <Image src={resolveImageSrc(cover)} alt={draft.news_title} width={1200} height={675} style={{ width: "100%", height: "auto" }} unoptimized />
+                              <Image src={resolveImageSrc(cover)} alt={draft.news_title} width={1080} height={1350} style={{ width: "100%", height: "auto", aspectRatio: "4 / 5", objectFit: "cover" }} unoptimized />
                             </Box>
                           ) : null}
                           {images.length > 1 ? (
@@ -670,7 +670,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                                         openImagePreview(draft, images, img);
                                       }
                                     }}
-                                    sx={{ position: "relative", width: 110, height: 68, borderRadius: 1.5, overflow: "hidden", border: "1px solid", borderColor: draft.selected_image_url === img ? "primary.main" : "divider", cursor: "zoom-in" }}
+                                    sx={{ position: "relative", width: 110, height: 138, borderRadius: 1.5, overflow: "hidden", border: "1px solid", borderColor: draft.selected_image_url === img ? "primary.main" : "divider", cursor: "zoom-in" }}
                                   >
                                     <Image src={resolveImageSrc(img)} alt="thumb" fill style={{ objectFit: "cover" }} unoptimized />
                                   </Box>
@@ -859,9 +859,9 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                 <Image
                   src={resolveImageSrc(imagePreview.current)}
                   alt="preview"
-                  width={1200}
-                  height={675}
-                  style={{ width: "100%", height: "auto" }}
+                  width={1080}
+                  height={1350}
+                  style={{ width: "100%", height: "auto", aspectRatio: "4 / 5", objectFit: "cover" }}
                   unoptimized
                 />
               </Box>
@@ -879,7 +879,7 @@ export default function AdminPageClient({ initialSession, initialDrafts, initial
                           setImagePreview({ ...imagePreview, current: img, selected: img });
                         }
                       }}
-                      sx={{ position: "relative", width: 120, height: 74, borderRadius: 1.5, overflow: "hidden", border: "2px solid", borderColor: imagePreview.selected === img ? "primary.main" : "divider", cursor: "pointer" }}
+                      sx={{ position: "relative", width: 96, height: 120, borderRadius: 1.5, overflow: "hidden", border: "2px solid", borderColor: imagePreview.selected === img ? "primary.main" : "divider", cursor: "pointer" }}
                     >
                       <Image src={resolveImageSrc(img)} alt="candidate" fill style={{ objectFit: "cover" }} unoptimized />
                     </Box>
