@@ -120,3 +120,42 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Slider de volumen La Nube — thumb accesible, track transparente (pinta el fill en JSX) */
+.lanube-volume {
+  height: 1.25rem;
+}
+.lanube-volume::-webkit-slider-runnable-track {
+  height: 0.375rem;
+  background: transparent;
+  border-radius: 999px;
+}
+.lanube-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -0.3125rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 2px solid #0d4f9e;
+  background: #fde047;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s ease;
+}
+.lanube-volume:hover::-webkit-slider-thumb,
+.lanube-volume:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.08);
+}
+.lanube-volume::-moz-range-track {
+  height: 0.375rem;
+  background: transparent;
+  border-radius: 999px;
+}
+.lanube-volume::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 2px solid #0d4f9e;
+  background: #fde047;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+}

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LoaderCircle, Pause, Play } from "lucide-react";
+import { LoaderCircle, Pause, Play, Volume1, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
 import { getNowPlayingAction } from "@/app/actions/now-playing";
 
@@ -10,6 +10,8 @@ const STREAM_URL = "https://a6.asurahosting.com:7360/radio.mp3";
 const BASE_RETRY_DELAY_MS = 1500;
 const MAX_RETRY_DELAY_MS = 20000;
 const NOW_PLAYING_POLL_MS = 15000;
+const VOLUME_STORAGE_KEY = "lanube.player.volume";
+const DEFAULT_VOLUME = 0.85;
 
 type PlayerStatus = "idle" | "connecting" | "playing" | "reconnecting";
 
@@ -29,20 +31,37 @@ const INITIAL_NOW_PLAYING: NowPlayingInfo = {
   art: DEFAULT_COVER,
 };
 
+function readStoredVolume(): number {
+  if (typeof window === "undefined") return DEFAULT_VOLUME;
+  try {
+    const raw = window.localStorage.getItem(VOLUME_STORAGE_KEY);
+    if (raw == null) return DEFAULT_VOLUME;
+    const value = Number.parseFloat(raw);
+    if (!Number.isFinite(value)) return DEFAULT_VOLUME;
+    return Math.min(1, Math.max(0, value));
+  } catch {
+    return DEFAULT_VOLUME;
+  }
+}
+
 export default function Hero() {
   const [isMounted, setIsMounted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>("idle");
   const [nowPlaying, setNowPlaying] = useState<NowPlayingInfo>(INITIAL_NOW_PLAYING);
+  const [volume, setVolume] = useState(DEFAULT_VOLUME);
+  const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
   const wantsToPlayRef = useRef(false);
   const isManualPauseRef = useRef(false);
   const isRefreshingSourceRef = useRef(false);
+  const volumeBeforeMuteRef = useRef(DEFAULT_VOLUME);
   const scheduleReconnectRef = useRef<() => void>(() => {});
   const forceReconnectRef = useRef<() => Promise<void>>(async () => {});
   const isLoading = playerStatus === "connecting" || playerStatus === "reconnecting";
+  const effectiveVolume = isMuted ? 0 : volume;
 
   const clearRetryTimer = useCallback(() => {
     if (retryTimerRef.current) {
@@ -120,8 +139,51 @@ export default function Hero() {
 
   // Hydration fix: only set dynamic state after client mount
   useEffect(() => {
+    const stored = readStoredVolume();
+    setVolume(stored);
+    volumeBeforeMuteRef.current = stored > 0 ? stored : DEFAULT_VOLUME;
+    setIsMuted(stored === 0);
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = effectiveVolume;
+  }, [effectiveVolume]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    try {
+      window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume));
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [isMounted, volume]);
+
+  const onVolumeInput = (next: number) => {
+    const clamped = Math.min(1, Math.max(0, next));
+    setVolume(clamped);
+    if (clamped > 0) {
+      volumeBeforeMuteRef.current = clamped;
+      setIsMuted(false);
+    } else {
+      setIsMuted(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (isMuted || volume === 0) {
+      const restore = volumeBeforeMuteRef.current > 0 ? volumeBeforeMuteRef.current : DEFAULT_VOLUME;
+      setVolume(restore);
+      setIsMuted(false);
+      return;
+    }
+    volumeBeforeMuteRef.current = volume;
+    setIsMuted(true);
+  };
+
+  const VolumeIcon = effectiveVolume === 0 ? VolumeX : effectiveVolume < 0.45 ? Volume1 : Volume2;
 
   useEffect(() => {
     let isCancelled = false;
@@ -266,6 +328,46 @@ export default function Hero() {
             )}
             {isPlaying ? "Pausar transmisión" : isLoading ? "Conectando..." : "Escúchanos en vivo"}
           </Button>
+
+          <div
+            className="flex items-center gap-3 rounded-full border border-white/35 bg-white/15 px-3.5 py-2.5 backdrop-blur-xl shadow-lg"
+            role="group"
+            aria-label="Control de volumen"
+          >
+            <button
+              type="button"
+              onClick={toggleMute}
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/35 bg-slate-900/25 text-white transition hover:bg-yellow-300 hover:text-sky-900"
+              aria-label={effectiveVolume === 0 ? "Activar sonido" : "Silenciar"}
+            >
+              <VolumeIcon className="h-4 w-4" />
+            </button>
+
+            <div className="relative flex min-w-0 flex-1 items-center">
+              <div className="pointer-events-none absolute inset-x-0 h-1.5 rounded-full bg-white/25" />
+              <div
+                className="pointer-events-none absolute left-0 h-1.5 rounded-full bg-gradient-to-r from-yellow-200 to-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.45)]"
+                style={{ width: `${Math.round(effectiveVolume * 100)}%` }}
+              />
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={Math.round(effectiveVolume * 100)}
+                onChange={(e) => onVolumeInput(Number(e.target.value) / 100)}
+                className="lanube-volume relative z-10 w-full cursor-pointer appearance-none bg-transparent"
+                aria-label="Nivel de volumen"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(effectiveVolume * 100)}
+              />
+            </div>
+
+            <span className="w-10 shrink-0 text-right text-xs font-semibold tabular-nums text-white/90">
+              {Math.round(effectiveVolume * 100)}%
+            </span>
+          </div>
 
           <div className="rounded-xl sm:rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl overflow-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-[minmax(180px,220px)_1fr] items-stretch">
