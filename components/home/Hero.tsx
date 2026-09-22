@@ -302,7 +302,7 @@ export default function Hero() {
   }, [clearRetryTimer, forceReconnect, scheduleReconnect]);
 
   return (
-    <section className="w-full mt-20 min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gradient-to-br from-[#0d4f9e] via-[#1b6fcd] to-[#3aa8ff] text-white px-4 sm:px-6 text-center">
+    <section className="w-full min-h-[calc(100dvh-4.5rem)] flex items-center justify-center bg-gradient-to-br from-[#0d4f9e] via-[#1b6fcd] to-[#3aa8ff] text-white px-4 sm:px-6 text-center">
       <div className="w-full max-w-4xl space-y-5 sm:space-y-8">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-md">
           Radio La Nube <span className="text-yellow-300">99.5 FM</span>
