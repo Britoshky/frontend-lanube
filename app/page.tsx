@@ -7,9 +7,9 @@ import VisionMision from "@/components/home/VisionMision";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Radio La Nube 99.5 FM | Música y Cultura desde Chanco",
+  title: "Radio La Nube 99.5 FM | Una nube de éxitos",
   description:
-    "Escucha Radio La Nube 99.5 FM en vivo. Música, entrevistas y contenido juvenil desde Chanco, Región del Maule.",
+    "Una nube de éxitos. Escucha Radio La Nube 99.5 FM en vivo desde Chanco, Región del Maule.",
   alternates: {
     canonical: "https://lanubefm.cl/",
   },
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     "radiolanubefm"
   ],
   openGraph: {
-    title: "Radio La Nube 99.5 FM | Música y Cultura desde Chanco",
+    title: "Radio La Nube 99.5 FM | Una nube de éxitos",
     description:
-      "Sintoniza Radio La Nube 99.5 FM y disfruta de la mejor programación juvenil del Maule. En vivo desde Chanco.",
+      "Una nube de éxitos. Sintoniza Radio La Nube 99.5 FM en vivo desde Chanco.",
     url: "https://lanubefm.cl",
     siteName: "Radio La Nube",
     locale: "es_CL",
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    title: "Radio La Nube 99.5 FM | Música y Cultura desde Chanco",
+    title: "Radio La Nube 99.5 FM | Una nube de éxitos",
     description:
-      "Conecta con la mejor radio juvenil del Maule. Radio La Nube 99.5 FM desde Chanco, Chile.",
+      "Una nube de éxitos. Radio La Nube 99.5 FM desde Chanco, Chile.",
     card: "summary_large_image",
     images: ["/logo-fondo.png"],
   },

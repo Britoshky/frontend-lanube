@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lanubefm.cl"),
-  title: "Radio La Nube 99.5 FM | En vivo desde Chanco",
+  title: "Radio La Nube 99.5 FM | Una nube de éxitos",
   description:
-    "Radio La Nube 99.5 FM: señal en vivo, música, cultura y programación local desde Chanco, Región del Maule.",
+    "Radio La Nube 99.5 FM: una nube de éxitos. Señal en vivo, música y programación local desde Chanco, Región del Maule.",
   applicationName: "Radio La Nube",
   keywords: [
     "Radio La Nube",
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     siteName: "Radio La Nube",
     locale: "es_CL",
     url: "https://lanubefm.cl",
-    title: "Radio La Nube 99.5 FM | En vivo desde Chanco",
+    title: "Radio La Nube 99.5 FM | Una nube de éxitos",
     description:
-      "Escucha Radio La Nube 99.5 FM en vivo con música, entrevistas y contenido local desde la Región del Maule.",
+      "Una nube de éxitos. Escucha Radio La Nube 99.5 FM en vivo con música y contenido local desde la Región del Maule.",
     images: [
       {
         url: "/logo-fondo.png",
@@ -52,9 +52,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Radio La Nube 99.5 FM | En vivo desde Chanco",
+    title: "Radio La Nube 99.5 FM | Una nube de éxitos",
     description:
-      "Música, cultura y programación local en vivo por Radio La Nube 99.5 FM.",
+      "Una nube de éxitos: música y programación local en vivo por Radio La Nube 99.5 FM.",
     images: ["/logo-fondo.png"],
   },
   robots: {

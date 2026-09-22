@@ -308,7 +308,10 @@ export default function Hero() {
           Radio La Nube <span className="text-yellow-300">99.5 FM</span>
         </h1>
         <p className="text-base sm:text-xl md:text-2xl font-medium italic">
-          “Una nube de éxitos” desde Chanco, Región del Maule 🌤️
+          Una nube de éxitos
+        </p>
+        <p className="text-sm sm:text-base text-white/80">
+          Desde Chanco, Región del Maule
         </p>
 
         <div className="mx-auto w-[min(94vw,320px)] sm:w-full sm:max-w-2xl space-y-3 sm:space-y-4">

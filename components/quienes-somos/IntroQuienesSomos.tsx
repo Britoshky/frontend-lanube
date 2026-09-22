@@ -9,7 +9,7 @@ export default function IntroQuienesSomos() {
           Una radio hecha con pasión por las voces jóvenes del Maule. Transmitimos desde Chanco en el 99.5 FM, con energía, comunidad y éxitos que te acompañan todo el día.
         </p>
         <p className="text-md md:text-lg text-gray-600 italic">
-          “Una nube de éxitos que conecta generaciones”.
+          Una nube de éxitos
         </p>
       </div>
     </section>
