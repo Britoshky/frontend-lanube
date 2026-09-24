@@ -153,8 +153,8 @@ function resolveImageSrc(imageUrl: string): string {
 }
 
 export default function AdminPageClient({ initialSession, initialDrafts, initialHistory, initialDraftsTotal, initialHistoryTotal, initialConfig }: AdminPageClientProps) {
-  const [username, setUsername] = useState("britoshky@gmail.com");
-  const [password, setPassword] = useState("CdCd@2627");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [session, setSession] = useState<string | null>(initialSession);
   const [drafts, setDrafts] = useState<DraftDTO[]>(initialDrafts);
   const [history, setHistory] = useState<DraftDTO[]>(initialHistory);
