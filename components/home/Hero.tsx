@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { VolumeSlider } from "@/components/VolumeSlider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoaderCircle, Pause, Play, Volume1, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
@@ -149,8 +150,9 @@ export default function Hero() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = effectiveVolume;
-  }, [effectiveVolume]);
+    audio.muted = isMuted;
+    audio.volume = volume;
+  }, [isMuted, volume]);
 
   useEffect(() => {
     if (!isMounted) return;
@@ -161,8 +163,13 @@ export default function Hero() {
     }
   }, [isMounted, volume]);
 
-  const onVolumeInput = (next: number) => {
+  const onVolumeInput = useCallback((next: number) => {
     const clamped = Math.min(1, Math.max(0, next));
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = clamped;
+      audio.muted = clamped === 0;
+    }
     setVolume(clamped);
     if (clamped > 0) {
       volumeBeforeMuteRef.current = clamped;
@@ -170,7 +177,7 @@ export default function Hero() {
     } else {
       setIsMuted(true);
     }
-  };
+  }, []);
 
   const toggleMute = () => {
     if (isMuted || volume === 0) {
@@ -346,29 +353,16 @@ export default function Hero() {
               <VolumeIcon className="h-4 w-4" />
             </button>
 
-            <div className="relative flex min-w-0 flex-1 items-center">
-              <div className="pointer-events-none absolute inset-x-0 h-1.5 rounded-full bg-white/25" />
-              <div
-                className="pointer-events-none absolute left-0 h-1.5 rounded-full bg-gradient-to-r from-yellow-200 to-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.45)]"
-                style={{ width: `${Math.round(effectiveVolume * 100)}%` }}
-              />
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={1}
-                value={Math.round(effectiveVolume * 100)}
-                onChange={(e) => onVolumeInput(Number(e.target.value) / 100)}
-                className="lanube-volume relative z-10 w-full cursor-pointer appearance-none bg-transparent"
-                aria-label="Nivel de volumen"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(effectiveVolume * 100)}
-              />
-            </div>
+            <VolumeSlider
+              value={volume}
+              onChange={onVolumeInput}
+              trackClassName="bg-white/25"
+              fillClassName="bg-gradient-to-r from-yellow-200 to-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.45)]"
+              thumbClassName="border-[#0d4f9e] bg-yellow-300"
+            />
 
             <span className="w-10 shrink-0 text-right text-xs font-semibold tabular-nums text-white/90">
-              {Math.round(effectiveVolume * 100)}%
+              {Math.round((isMuted ? 0 : volume) * 100)}%
             </span>
           </div>
 
